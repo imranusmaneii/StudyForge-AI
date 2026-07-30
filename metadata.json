@@ -1,0 +1,6 @@
+{
+  "name": "StudyForge AI",
+  "description": "Build your smartest study plan with 3D AI-powered scheduling and adaptive time management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
