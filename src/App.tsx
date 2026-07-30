@@ -43,10 +43,26 @@ import { SettingsModal } from './components/Settings/SettingsModal';
 import { AuthModal } from './components/Auth/AuthModal';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-
-  // Active Authenticated User State
+  // Default initial active tab: 'landing' (Overview) if logged out, or 'dashboard' if logged in
   const [currentUser, setCurrentUser] = useState<User | null>(() => loadCurrentUser());
+  const [activeTab, setActiveTabState] = useState<ActiveTab>(() => currentUser ? 'dashboard' : 'landing');
+
+  // Smart tab switcher enforcing login for all tabs except 'landing' (Overview)
+  const setActiveTab = (tab: ActiveTab) => {
+    if (!currentUser && tab !== 'landing') {
+      handleOpenAuth('login');
+      return;
+    }
+    setActiveTabState(tab);
+  };
+
+  const handleOpenCreateModal = () => {
+    if (!currentUser) {
+      handleOpenAuth('login');
+      return;
+    }
+    setIsPlannerFormOpen(true);
+  };
 
   // Core Persistent State (Keyed by active user ID)
   const [subjects, setSubjects] = useState<Subject[]>(() => loadSubjects(currentUser?.id));
@@ -100,6 +116,7 @@ export default function App() {
 
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
+    setActiveTabState('dashboard');
     setIsAuthModalOpen(false);
   };
 
@@ -109,12 +126,14 @@ export default function App() {
     setSubjects(EMPTY_SUBJECTS);
     setStudyPlan(EMPTY_STUDY_PLAN);
     setProgress(EMPTY_PROGRESS);
+    setActiveTabState('dashboard');
     setIsAuthModalOpen(false);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
     saveCurrentUser(null);
+    setActiveTabState('landing');
   };
 
   // Handler 1: Toggle task / session complete
@@ -317,7 +336,7 @@ export default function App() {
         <Header
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          onOpenCreateModal={() => setIsPlannerFormOpen(true)}
+          onOpenCreateModal={handleOpenCreateModal}
           currentUser={currentUser}
           onOpenAuth={handleOpenAuth}
           onLogout={handleLogout}
@@ -326,7 +345,7 @@ export default function App() {
         <main className="flex-1 p-3 sm:p-8 max-w-7xl w-full mx-auto pb-24 sm:pb-8">
           {activeTab === 'landing' && (
             <LandingPage
-              onStartPlanner={() => setIsPlannerFormOpen(true)}
+              onStartPlanner={handleOpenCreateModal}
               onExploreDemo={() => setActiveTab('dashboard')}
               setActiveTab={setActiveTab}
             />

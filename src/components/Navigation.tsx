@@ -14,7 +14,8 @@ import {
   Globe,
   LogIn,
   LogOut,
-  User as UserIcon
+  User as UserIcon,
+  Lock
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -87,6 +88,8 @@ export const Navigation: React.FC<NavigationProps> = ({
         <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
+            const isProtected = !currentUser && item.id !== 'landing';
+
             return (
               <button
                 key={item.id}
@@ -98,17 +101,24 @@ export const Navigation: React.FC<NavigationProps> = ({
                     : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className={`transition-colors ${isActive ? 'text-[#0070F3]' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className={`transition-colors shrink-0 ${isActive ? 'text-[#0070F3]' : 'text-gray-500 group-hover:text-gray-300'}`}>
                     {item.icon}
                   </span>
-                  <span className="tracking-wide">{item.label}</span>
+                  <span className="tracking-wide truncate">{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span className="px-1.5 py-0.5 text-[10px] rounded font-mono font-semibold bg-[#0070F3]/20 text-[#0070F3] border border-[#0070F3]/30">
-                    {item.badge}
-                  </span>
-                )}
+                
+                <div className="flex items-center gap-1 shrink-0">
+                  {isProtected ? (
+                    <Lock className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
+                  ) : (
+                    item.badge && (
+                      <span className="px-1.5 py-0.5 text-[10px] rounded font-mono font-semibold bg-[#0070F3]/20 text-[#0070F3] border border-[#0070F3]/30">
+                        {item.badge}
+                      </span>
+                    )
+                  )}
+                </div>
               </button>
             );
           })}
@@ -168,22 +178,29 @@ export const Navigation: React.FC<NavigationProps> = ({
       {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 inset-x-0 bg-[#030507]/95 backdrop-blur-xl border-t border-blue-900/30 z-40 px-1.5 py-1 flex items-center justify-between">
         {[
+          { id: 'landing' as ActiveTab, label: 'Overview', icon: <Globe className="w-4 h-4" /> },
           { id: 'dashboard' as ActiveTab, label: 'Dash', icon: <LayoutDashboard className="w-4 h-4" /> },
           { id: 'planner' as ActiveTab, label: 'Planner', icon: <CalendarRange className="w-4 h-4" /> },
           { id: 'tasks' as ActiveTab, label: 'Tasks', icon: <CheckCircle2 className="w-4 h-4" /> },
-          { id: 'timer' as ActiveTab, label: 'Timer', icon: <Timer className="w-4 h-4" /> },
-          { id: 'assistant' as ActiveTab, label: 'AI Copilot', icon: <Bot className="w-4 h-4 text-cyan-400" /> },
+          { id: 'assistant' as ActiveTab, label: 'Copilot', icon: <Bot className="w-4 h-4 text-cyan-400" /> },
         ].map((item) => {
           const isActive = activeTab === item.id;
+          const isProtected = !currentUser && item.id !== 'landing';
+
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-lg text-[10px] transition-all ${
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-lg text-[10px] transition-all relative ${
                 isActive ? 'text-cyan-400 bg-blue-500/15 font-bold shadow-[0_0_10px_rgba(0,112,243,0.2)]' : 'text-slate-400 font-medium'
               }`}
             >
-              {item.icon}
+              <div className="relative">
+                {item.icon}
+                {isProtected && (
+                  <Lock className="w-2.5 h-2.5 text-amber-400 absolute -top-1 -right-2 bg-[#030507] rounded-full p-[1px]" />
+                )}
+              </div>
               <span className="mt-0.5 tracking-tight">{item.label}</span>
             </button>
           );
