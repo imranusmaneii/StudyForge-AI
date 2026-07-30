@@ -62,8 +62,7 @@ export function loadSubjects(userId?: string): Subject[] {
   } catch (e) {
     console.warn('Failed to parse saved subjects:', e);
   }
-  // If no user ID (legacy preview demo), return demo subjects, else empty array
-  return userId ? [] : INITIAL_SUBJECTS;
+  return EMPTY_SUBJECTS;
 }
 
 export function saveSubjects(subjects: Subject[], userId?: string): void {
@@ -81,7 +80,7 @@ export function loadStudyPlan(userId?: string): StudyPlan {
   } catch (e) {
     console.warn('Failed to parse saved study plan:', e);
   }
-  return userId ? EMPTY_STUDY_PLAN : INITIAL_STUDY_PLAN;
+  return EMPTY_STUDY_PLAN;
 }
 
 export function saveStudyPlan(plan: StudyPlan, userId?: string): void {
@@ -99,7 +98,7 @@ export function loadProgress(userId?: string): ProgressStats {
   } catch (e) {
     console.warn('Failed to parse saved progress:', e);
   }
-  return userId ? EMPTY_PROGRESS : INITIAL_PROGRESS;
+  return EMPTY_PROGRESS;
 }
 
 export function saveProgress(progress: ProgressStats, userId?: string): void {

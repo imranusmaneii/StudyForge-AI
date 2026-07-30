@@ -42,13 +42,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const todayProgressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : progress.todayProgressPercent;
 
   // Find nearest upcoming exam
-  const sortedExams = [...subjects].sort((a, b) => {
-    return new Date(a.examDate).getTime() - new Date(b.examDate).getTime();
-  });
+  const sortedExams = [...subjects]
+    .filter(s => s.examDate)
+    .sort((a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime());
   const nearestExam = sortedExams[0];
   const daysUntilExam = nearestExam
-    ? Math.ceil((new Date(nearestExam.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-    : 12;
+    ? Math.max(0, Math.ceil((new Date(nearestExam.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
+    : null;
 
   // Total study minutes today formatted
   const totalMins = todaySessions.reduce((acc, s) => acc + (s.completed ? s.durationMinutes : 0), 0);
@@ -221,14 +221,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-lg font-bold text-white truncate">{nearestExam?.name || 'Mathematics'}</p>
+            <p className="text-lg font-bold text-white truncate">{nearestExam ? nearestExam.name : 'No Exam Scheduled'}</p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-2xl font-black text-cyan-400 font-mono">{daysUntilExam}</span>
-              <span className="text-xs text-slate-400">days remaining</span>
+              <span className="text-2xl font-black text-cyan-400 font-mono">{daysUntilExam !== null ? daysUntilExam : '--'}</span>
+              <span className="text-xs text-slate-400">{daysUntilExam !== null ? 'days remaining' : 'No upcoming exam date'}</span>
             </div>
           </div>
           <div className="mt-2 text-[11px] text-rose-300/80 font-mono">
-            Exam Date: {nearestExam?.examDate || '2026-08-11'}
+            Exam Date: {nearestExam ? nearestExam.examDate : 'Not set'}
           </div>
           <p className="text-[10px] text-slate-500 mt-2 italic border-t border-white/5 pt-1.5">
             Days remaining until next major exam.
