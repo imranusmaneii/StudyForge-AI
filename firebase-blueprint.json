@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "user": {
+      "title": "User Profile",
+      "description": "User profile document stored under users/{userId}",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "user_data": {
+      "title": "User Study Data",
+      "description": "User subjects, plan, and progress stored under user_data/{userId}",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjects": { "type": "array" },
+        "studyPlan": { "type": "object" },
+        "progress": { "type": "object" }
+      },
+      "required": ["userId"]
+    }
+  },
+  "securityRules": [
+    {
+      "collection": "users",
+      "document": "{userId}",
+      "read": "request.auth != null && request.auth.uid == userId",
+      "write": "request.auth != null && request.auth.uid == userId"
+    },
+    {
+      "collection": "user_data",
+      "document": "{userId}",
+      "read": "request.auth != null && request.auth.uid == userId",
+      "write": "request.auth != null && request.auth.uid == userId"
+    }
+  ]
+}

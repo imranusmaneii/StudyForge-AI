@@ -25,6 +25,14 @@ import {
   EMPTY_STUDY_PLAN,
   EMPTY_PROGRESS
 } from './lib/storage';
+import {
+  auth,
+  onAuthStateChanged,
+  logoutFirebase,
+  getUserStudyData,
+  saveUserStudyData,
+  mapFirebaseUser
+} from './lib/firebase';
 
 import { Navigation } from './components/Navigation';
 import { Header } from './components/Header';
@@ -82,6 +90,27 @@ export default function App() {
   // Temporary container for newly generated plan during step animation
   const [pendingPlan, setPendingPlan] = useState<StudyPlan | null>(null);
 
+  // Firebase Auth State Listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        const user = mapFirebaseUser(fbUser);
+        setCurrentUser(user);
+        saveCurrentUser(user);
+
+        // Fetch user data from Firestore
+        const remoteData = await getUserStudyData(user.id);
+        if (remoteData) {
+          if (remoteData.subjects) setSubjects(remoteData.subjects);
+          if (remoteData.studyPlan) setStudyPlan(remoteData.studyPlan);
+          if (remoteData.progress) setProgress(remoteData.progress);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // Sync state when user changes
   useEffect(() => {
     saveCurrentUser(currentUser);
@@ -91,17 +120,26 @@ export default function App() {
     setChatMessages(loadChatMessages(currentUser?.id));
   }, [currentUser?.id]);
 
-  // Save changes to per-user local storage
+  // Save changes to per-user local storage and Firestore
   useEffect(() => {
     saveSubjects(subjects, currentUser?.id);
+    if (currentUser?.id) {
+      saveUserStudyData(currentUser.id, { subjects });
+    }
   }, [subjects, currentUser?.id]);
 
   useEffect(() => {
     saveStudyPlan(studyPlan, currentUser?.id);
+    if (currentUser?.id) {
+      saveUserStudyData(currentUser.id, { studyPlan });
+    }
   }, [studyPlan, currentUser?.id]);
 
   useEffect(() => {
     saveProgress(progress, currentUser?.id);
+    if (currentUser?.id) {
+      saveUserStudyData(currentUser.id, { progress });
+    }
   }, [progress, currentUser?.id]);
 
   useEffect(() => {
@@ -114,10 +152,18 @@ export default function App() {
     setIsAuthModalOpen(true);
   };
 
-  const handleLoginSuccess = (user: User) => {
+  const handleLoginSuccess = async (user: User) => {
     setCurrentUser(user);
     setActiveTabState('dashboard');
     setIsAuthModalOpen(false);
+
+    // Fetch user cloud data
+    const remoteData = await getUserStudyData(user.id);
+    if (remoteData) {
+      setSubjects(remoteData.subjects || EMPTY_SUBJECTS);
+      setStudyPlan(remoteData.studyPlan || EMPTY_STUDY_PLAN);
+      setProgress(remoteData.progress || EMPTY_PROGRESS);
+    }
   };
 
   const handleSignupSuccess = (user: User) => {
@@ -130,9 +176,17 @@ export default function App() {
     setIsAuthModalOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutFirebase();
+    } catch (e) {
+      console.warn('Firebase logout error:', e);
+    }
     setCurrentUser(null);
     saveCurrentUser(null);
+    setSubjects(EMPTY_SUBJECTS);
+    setStudyPlan(EMPTY_STUDY_PLAN);
+    setProgress(EMPTY_PROGRESS);
     setActiveTabState('landing');
   };
 
