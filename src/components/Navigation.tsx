@@ -176,13 +176,13 @@ export const Navigation: React.FC<NavigationProps> = ({
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 bg-[#030507]/95 backdrop-blur-xl border-t border-blue-900/30 z-40 px-1.5 py-1 flex items-center justify-between">
+      <div className="md:hidden fixed bottom-0 inset-x-0 bg-[#030507]/95 backdrop-blur-xl border-t border-white/10 z-40 px-2 py-1.5 flex items-center justify-around shadow-lg">
         {[
-          { id: 'landing' as ActiveTab, label: 'Overview', icon: <Globe className="w-4 h-4" /> },
-          { id: 'dashboard' as ActiveTab, label: 'Dash', icon: <LayoutDashboard className="w-4 h-4" /> },
-          { id: 'planner' as ActiveTab, label: 'Planner', icon: <CalendarRange className="w-4 h-4" /> },
+          { id: 'dashboard' as ActiveTab, label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+          { id: 'planner' as ActiveTab, label: 'AI Plan', icon: <CalendarRange className="w-4 h-4" /> },
           { id: 'tasks' as ActiveTab, label: 'Tasks', icon: <CheckCircle2 className="w-4 h-4" /> },
-          { id: 'assistant' as ActiveTab, label: 'Copilot', icon: <Bot className="w-4 h-4 text-cyan-400" /> },
+          { id: 'timer' as ActiveTab, label: 'Focus', icon: <Timer className="w-4 h-4" /> },
+          { id: 'assistant' as ActiveTab, label: 'Ask AI', icon: <Bot className="w-4 h-4" /> },
         ].map((item) => {
           const isActive = activeTab === item.id;
           const isProtected = !currentUser && item.id !== 'landing';
@@ -191,8 +191,8 @@ export const Navigation: React.FC<NavigationProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-lg text-[10px] transition-all relative ${
-                isActive ? 'text-cyan-400 bg-blue-500/15 font-bold shadow-[0_0_10px_rgba(0,112,243,0.2)]' : 'text-slate-400 font-medium'
+              className={`flex-1 flex flex-col items-center justify-center py-1 rounded-xl text-[10px] transition-all relative ${
+                isActive ? 'text-[#0070F3] bg-[#0070F3]/10 font-bold border border-[#0070F3]/20' : 'text-gray-400 font-medium hover:text-gray-200'
               }`}
             >
               <div className="relative">

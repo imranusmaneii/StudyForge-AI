@@ -70,7 +70,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             Good morning, Student.
           </h2>
           <p className="text-xs sm:text-sm text-gray-300 mt-1 max-w-2xl leading-relaxed">
-            <strong className="text-cyan-400">Overview Purpose:</strong> Your central mission dashboard aggregating today's active study schedule, focus session progress, study streak, upcoming exam countdowns, and topic mastery.
+            Welcome back to StudyForge AI. Track today's focus blocks, review upcoming exam deadlines, and keep your study streak alive.
           </p>
         </div>
 

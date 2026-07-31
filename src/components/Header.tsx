@@ -40,20 +40,20 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   return (
-    <header className="sticky top-0 z-20 bg-[#030507]/80 backdrop-blur-md border-b border-white/5 px-4 sm:px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-          {current.main}
+    <header className="sticky top-0 z-30 bg-[#030507]/90 backdrop-blur-xl border-b border-white/5 px-3.5 sm:px-8 py-3 flex items-center justify-between gap-3">
+      <div className="min-w-0 flex-1">
+        <h1 className="text-base sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2 truncate">
+          <span className="truncate">{current.main}</span>
           {activeTab === 'planner' && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#0070F3]/10 text-[#0070F3] font-mono border border-[#0070F3]/20">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#0070F3]/10 text-[#0070F3] font-mono border border-[#0070F3]/20 shrink-0">
               AI Powered
             </span>
           )}
         </h1>
-        <p className="text-xs text-gray-400 mt-0.5">{current.sub}</p>
+        <p className="text-xs text-gray-400 mt-0.5 hidden sm:block truncate">{current.sub}</p>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#080B12] border border-white/5 text-xs text-gray-400 font-mono">
           <Calendar className="w-3.5 h-3.5 text-[#0070F3]" />
           <span>{todayFormatted}</span>
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           id="header-quick-planner-btn"
           onClick={onOpenCreateModal}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-xs font-semibold shadow-[0_0_20px_rgba(0,112,243,0.3)] hover:shadow-[0_0_25px_rgba(0,112,243,0.5)] active:scale-[0.98] transition-all"
+          className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#0070F3] to-[#00A3FF] hover:brightness-110 text-white text-xs font-semibold shadow-[0_0_20px_rgba(0,112,243,0.35)] active:scale-[0.98] transition-all shrink-0"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span>New AI Plan</span>
@@ -71,26 +71,26 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           id="header-quick-timer-btn"
           onClick={() => setActiveTab('timer')}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#080B12] border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
+          className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#080B12] border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
         >
           <Timer className="w-3.5 h-3.5 text-[#0070F3]" />
-          <span className="hidden sm:inline">Focus</span>
+          <span>Focus</span>
         </button>
 
         <button
           id="header-quick-ai-btn"
           onClick={() => setActiveTab('assistant')}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#080B12] border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
+          className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#080B12] border border-white/10 text-gray-300 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
         >
           <Bot className="w-3.5 h-3.5 text-[#0070F3]" />
-          <span className="hidden sm:inline">Ask AI</span>
+          <span>Ask AI</span>
         </button>
 
         {/* User Account / Auth Chip */}
         {currentUser ? (
-          <div className="flex items-center gap-2 pl-2 border-l border-white/10">
+          <div className="flex items-center gap-1.5 sm:gap-2 pl-2 border-l border-white/10">
             <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[#080B12] border border-white/10">
-              <div className="w-6 h-6 rounded-full bg-[#0070F3] text-white flex items-center justify-center text-xs font-bold">
+              <div className="w-6 h-6 rounded-full bg-[#0070F3] text-white flex items-center justify-center text-xs font-bold shrink-0">
                 {currentUser.name.charAt(0)}
               </div>
               <span className="text-xs font-semibold text-gray-200 hidden md:inline truncate max-w-[100px]">
@@ -106,17 +106,17 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-1 pl-2 border-l border-white/10">
+          <div className="flex items-center gap-1 pl-1.5 sm:pl-2 border-l border-white/10">
             <button
               onClick={() => onOpenAuth('login')}
-              className="px-3 py-2 rounded-xl bg-[#080B12] border border-white/10 text-gray-200 text-xs font-semibold hover:bg-white/5 transition-all flex items-center gap-1.5"
+              className="px-2.5 sm:px-3 py-2 rounded-xl bg-[#080B12] border border-white/10 text-gray-200 text-xs font-semibold hover:bg-white/5 transition-all flex items-center gap-1.5 shrink-0"
             >
               <LogIn className="w-3.5 h-3.5 text-[#0070F3]" />
               <span>Log In</span>
             </button>
             <button
               onClick={() => onOpenAuth('signup')}
-              className="px-3 py-2 rounded-xl bg-[#0070F3]/20 border border-[#0070F3]/30 text-[#0070F3] text-xs font-semibold hover:bg-[#0070F3]/30 transition-all hidden sm:flex items-center gap-1"
+              className="px-3 py-2 rounded-xl bg-[#0070F3]/20 border border-[#0070F3]/30 text-[#0070F3] text-xs font-semibold hover:bg-[#0070F3]/30 transition-all hidden sm:flex items-center gap-1 shrink-0"
             >
               <span>Sign Up</span>
             </button>
