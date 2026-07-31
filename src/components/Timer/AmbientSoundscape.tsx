@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getAudioContext, unlockAudio } from '../../lib/audioManager';
 import {
   Volume2,
   Sparkles,
@@ -75,7 +76,7 @@ export const AmbientSoundscape: React.FC<AmbientSoundscapeProps> = ({ isTimerRun
     }
   }, [volume]);
 
-  const startSound = (soundType: AmbientSoundType) => {
+  const startSound = async (soundType: AmbientSoundType) => {
     stopAllAudio();
 
     if (soundType === 'none') {
@@ -85,8 +86,8 @@ export const AmbientSoundscape: React.FC<AmbientSoundscapeProps> = ({ isTimerRun
     }
 
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioCtx();
+      await unlockAudio();
+      const ctx = await getAudioContext();
       audioCtxRef.current = ctx;
 
       const masterGain = ctx.createGain();

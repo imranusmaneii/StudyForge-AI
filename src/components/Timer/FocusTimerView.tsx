@@ -4,6 +4,7 @@ import { Card3D } from '../3d/Card3D';
 import confetti from 'canvas-confetti';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, Sparkles, CheckCircle2 } from 'lucide-react';
 import { AmbientSoundscape } from './AmbientSoundscape';
+import { unlockAudio, playCompletionChime } from '../../lib/audioManager';
 
 interface FocusTimerViewProps {
   onLogStudyMinutes: (minutes: number) => void;
@@ -18,33 +19,6 @@ export const FocusTimerView: React.FC<FocusTimerViewProps> = ({ onLogStudyMinute
 
   const initialTimeRef = useRef<number>(25 * 60);
 
-  // Sound generator using Web Audio API (no external file needed!)
-  const playCompletionChime = () => {
-    if (!soundEnabled) return;
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-      notes.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.15);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime + idx * 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.15 + 0.8);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + idx * 0.15);
-        osc.stop(ctx.currentTime + idx * 0.15 + 0.8);
-      });
-    } catch (e) {
-      console.log('Audio playback prevented or unsupported');
-    }
-  };
-
   useEffect(() => {
     let timer: any;
     if (isRunning && timeLeft > 0) {
@@ -53,7 +27,7 @@ export const FocusTimerView: React.FC<FocusTimerViewProps> = ({ onLogStudyMinute
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
-      playCompletionChime();
+      playCompletionChime(soundEnabled);
       confetti({
         particleCount: 80,
         spread: 70,
@@ -75,7 +49,10 @@ export const FocusTimerView: React.FC<FocusTimerViewProps> = ({ onLogStudyMinute
     initialTimeRef.current = mins * 60;
   };
 
-  const handleStartPause = () => {
+  const handleStartPause = async () => {
+    if (!isRunning) {
+      await unlockAudio();
+    }
     setIsRunning(!isRunning);
   };
 
