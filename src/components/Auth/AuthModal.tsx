@@ -232,9 +232,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 ) : (
                   <>
                     <UserPlus className="w-4 h-4" />
-                    <span>Create Fresh Account (0 Data)</span>
+                    <span>Create Fresh Account</span>
                   </>
                 )}
+              </button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-[10px] uppercase font-mono tracking-wider">
+                  <span className="bg-[#080B12] px-2 text-gray-400">or try demo</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const demoUser: User = {
+                    id: 'demo-user-123',
+                    name: 'Alex Student',
+                    email: 'alex@demo.edu',
+                    provider: 'email',
+                    createdAt: new Date().toISOString()
+                  };
+                  onLogin(demoUser, false);
+                  onClose();
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 hover:text-white font-semibold text-xs transition-all flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <span>Instant Demo Access (Alex Student)</span>
               </button>
             </form>
 

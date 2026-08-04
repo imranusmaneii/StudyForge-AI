@@ -33,10 +33,16 @@ async function startServer() {
   // API 1: Generate Study Plan
   app.post('/api/gemini/generate-plan', async (req, res) => {
     try {
-      const { subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes } = req.body;
+      const { subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes, preferredStartTime } = req.body;
 
       if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
         return res.status(400).json({ error: 'At least one subject is required.' });
+      }
+
+      let baseStartMins = 9 * 60; // Default 09:00 AM
+      if (preferredStartTime && typeof preferredStartTime === 'string' && preferredStartTime.includes(':')) {
+        const [ph, pm] = preferredStartTime.split(':').map(n => parseInt(n, 10) || 0);
+        baseStartMins = (ph % 24) * 60 + (pm % 60);
       }
 
       const apiKey = process.env.GEMINI_API_KEY;
@@ -44,7 +50,7 @@ async function startServer() {
         // Return a realistic fallback if key is missing
         return res.json({
           success: true,
-          plan: generateLocalFallbackPlan(subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes),
+          plan: generateLocalFallbackPlan(subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes, preferredStartTime),
           aiReasoning: 'Plan created with intelligent local fallback scheduling matrix based on exam proximity and subject difficulty.'
         });
       }
@@ -57,6 +63,7 @@ Generate a structured multi-day study schedule for a student with the following 
 - Study Days: ${JSON.stringify(studyDays || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])}
 - Goal: ${goal || 'high_grades'}
 - Preferred Session Duration: ${sessionLengthMinutes || 45} minutes
+- Daily Start Time: ${preferredStartTime || '09:00'}
 
 Rules:
 1. Prioritize subjects with upcoming exam dates and higher difficulty levels.
@@ -91,8 +98,6 @@ Return JSON strictly matching the schema.`;
                           subjectName: { type: Type.STRING },
                           topic: { type: Type.STRING },
                           durationMinutes: { type: Type.NUMBER },
-                          startTime: { type: Type.STRING },
-                          endTime: { type: Type.STRING },
                           priority: { type: Type.STRING, enum: ['low', 'medium', 'high', 'urgent'] },
                           type: { type: Type.STRING, enum: ['learning', 'practice', 'revision', 'review', 'break'] },
                         },
@@ -111,19 +116,18 @@ Return JSON strictly matching the schema.`;
 
       const parsed = JSON.parse(response.text || '{}');
       if (parsed.days && parsed.days.length > 0) {
-        // Map back with colors and subject IDs
+        // Map back with colors and subject IDs and exact recalculated timing
         const formattedDays = parsed.days.map((day: any, dIdx: number) => {
-          let currentMinutes = 9 * 60; // Start at 09:00 AM
+          let currentMinutes = baseStartMins;
           const sessionsWithDetails = day.sessions.map((sess: any, sIdx: number) => {
             const foundSubj = subjects.find((s: any) => s.name.toLowerCase() === sess.subjectName.toLowerCase()) || subjects[sIdx % subjects.length];
             const duration = sess.durationMinutes || sessionLengthMinutes || 45;
 
-            const startH = Math.floor(currentMinutes / 60).toString().padStart(2, '0');
+            const startH = (Math.floor(currentMinutes / 60) % 24).toString().padStart(2, '0');
             const startM = (currentMinutes % 60).toString().padStart(2, '0');
-            currentMinutes += duration;
-            const endH = Math.floor(currentMinutes / 60).toString().padStart(2, '0');
+            currentMinutes = (currentMinutes + duration) % (24 * 60);
+            const endH = (Math.floor(currentMinutes / 60) % 24).toString().padStart(2, '0');
             const endM = (currentMinutes % 60).toString().padStart(2, '0');
-            currentMinutes += 15; // 15 min buffer between sessions
 
             return {
               id: `gen-s-${dIdx}-${sIdx}-${Date.now()}`,
@@ -132,8 +136,8 @@ Return JSON strictly matching the schema.`;
               subjectColor: sess.type === 'break' ? '#64748b' : (foundSubj?.color || '#3b82f6'),
               topic: sess.topic || 'Core Subject Concepts',
               durationMinutes: duration,
-              startTime: sess.startTime || `${startH}:${startM}`,
-              endTime: sess.endTime || `${endH}:${endM}`,
+              startTime: `${startH}:${startM}`,
+              endTime: `${endH}:${endM}`,
               priority: sess.priority || foundSubj?.priority || 'medium',
               type: sess.type || 'learning',
               completed: false,
@@ -168,15 +172,15 @@ Return JSON strictly matching the schema.`;
       // Fallback if structure missing
       return res.json({
         success: true,
-        plan: generateLocalFallbackPlan(subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes)
+        plan: generateLocalFallbackPlan(subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes, preferredStartTime)
       });
     } catch (err: any) {
       console.error('Gemini generate plan error:', err);
       // Fallback on error so user experience is never broken!
-      const { subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes } = req.body;
+      const { subjects, availableHoursPerDay, studyDays, goal, sessionLengthMinutes, preferredStartTime } = req.body;
       return res.json({
         success: true,
-        plan: generateLocalFallbackPlan(subjects || [], availableHoursPerDay || 4, studyDays || [], goal || 'high_grades', sessionLengthMinutes || 45),
+        plan: generateLocalFallbackPlan(subjects || [], availableHoursPerDay || 4, studyDays || [], goal || 'high_grades', sessionLengthMinutes || 45, preferredStartTime),
         errorWarning: 'Used intelligent offline scheduler.'
       });
     }
@@ -258,13 +262,12 @@ Return JSON matching the schema.`;
             let currentMinutes = 9 * 60;
             const updatedSessions = aiDay.sessions.map((s: any, sIdx: number) => {
               const matchedSubject = (subjects || []).find((sub: any) => sub.name.toLowerCase() === (s.subjectName || '').toLowerCase());
-              const startH = Math.floor(currentMinutes / 60).toString().padStart(2, '0');
+              const startH = (Math.floor(currentMinutes / 60) % 24).toString().padStart(2, '0');
               const startM = (currentMinutes % 60).toString().padStart(2, '0');
               const duration = s.durationMinutes || 45;
-              currentMinutes += duration;
-              const endH = Math.floor(currentMinutes / 60).toString().padStart(2, '0');
+              currentMinutes = (currentMinutes + duration) % (24 * 60);
+              const endH = (Math.floor(currentMinutes / 60) % 24).toString().padStart(2, '0');
               const endM = (currentMinutes % 60).toString().padStart(2, '0');
-              currentMinutes += 15;
 
               return {
                 id: `adj-s-${dIdx}-${sIdx}-${Date.now()}`,
@@ -461,9 +464,15 @@ RESPONSE FORMAT MANDATE:
 }
 
 // Fallback logic helpers
-function generateLocalFallbackPlan(subjects: any[], availableHours: number, studyDays: string[], goal: string, sessionLen: number) {
+function generateLocalFallbackPlan(subjects: any[], availableHours: number, studyDays: string[], goal: string, sessionLen: number, preferredStartTime?: string) {
   const sessionDuration = sessionLen || 45;
   const daysList = ['Today (Day 1)', 'Tomorrow (Day 2)', 'Day 3'];
+
+  let baseStartMins = 9 * 60;
+  if (preferredStartTime && typeof preferredStartTime === 'string' && preferredStartTime.includes(':')) {
+    const [ph, pm] = preferredStartTime.split(':').map(n => parseInt(n, 10) || 0);
+    baseStartMins = (ph % 24) * 60 + (pm % 60);
+  }
 
   // Sort subjects by urgency / difficulty
   const sorted = [...subjects].sort((a, b) => {
@@ -473,16 +482,16 @@ function generateLocalFallbackPlan(subjects: any[], availableHours: number, stud
   });
 
   const days = daysList.map((dayName, dIdx) => {
-    let currentMin = 9 * 60;
+    let currentMin = baseStartMins;
     const sessions = [];
     const numSessions = Math.min(4, Math.floor(((availableHours || 4) * 60) / (sessionDuration + 15)));
 
     for (let i = 0; i < numSessions; i++) {
       const subj = sorted[i % sorted.length] || subjects[0] || { name: 'Core Subject', color: '#3b82f6', priority: 'high' };
-      const startH = Math.floor(currentMin / 60).toString().padStart(2, '0');
+      const startH = (Math.floor(currentMin / 60) % 24).toString().padStart(2, '0');
       const startM = (currentMin % 60).toString().padStart(2, '0');
       currentMin += sessionDuration;
-      const endH = Math.floor(currentMin / 60).toString().padStart(2, '0');
+      const endH = (Math.floor(currentMin / 60) % 24).toString().padStart(2, '0');
       const endM = (currentMin % 60).toString().padStart(2, '0');
 
       sessions.push({
@@ -504,10 +513,10 @@ function generateLocalFallbackPlan(subjects: any[], availableHours: number, stud
 
       if (i === 1 && numSessions > 2) {
         // Insert break
-        const bStartH = Math.floor(currentMin / 60).toString().padStart(2, '0');
+        const bStartH = (Math.floor(currentMin / 60) % 24).toString().padStart(2, '0');
         const bStartM = (currentMin % 60).toString().padStart(2, '0');
         currentMin += 15;
-        const bEndH = Math.floor(currentMin / 60).toString().padStart(2, '0');
+        const bEndH = (Math.floor(currentMin / 60) % 24).toString().padStart(2, '0');
         const bEndM = (currentMin % 60).toString().padStart(2, '0');
 
         sessions.push({

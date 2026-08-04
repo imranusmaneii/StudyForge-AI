@@ -4,11 +4,13 @@ import { Hero3DCanvas } from '../3d/Hero3DCanvas';
 
 interface GenerationLoadingModalProps {
   isOpen: boolean;
-  onComplete: () => void;
+  isReady?: boolean;
+  onComplete?: () => void;
 }
 
 export const GenerationLoadingModal: React.FC<GenerationLoadingModalProps> = ({
   isOpen,
+  isReady = true,
   onComplete
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -29,20 +31,23 @@ export const GenerationLoadingModal: React.FC<GenerationLoadingModalProps> = ({
 
     const interval = setInterval(() => {
       setCurrentStepIndex((prev) => {
-        if (prev < steps.length - 1) {
+        if (prev < 3) {
           return prev + 1;
-        } else {
+        } else if (prev === 3 && isReady) {
+          return 4;
+        } else if (prev === 4) {
           clearInterval(interval);
-          setTimeout(() => {
+          if (onComplete) {
             onComplete();
-          }, 800);
+          }
           return prev;
         }
+        return prev;
       });
-    }, 700);
+    }, 600);
 
     return () => clearInterval(interval);
-  }, [isOpen]);
+  }, [isOpen, isReady, onComplete]);
 
   if (!isOpen) return null;
 

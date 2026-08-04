@@ -25,6 +25,7 @@ import {
   EMPTY_STUDY_PLAN,
   EMPTY_PROGRESS
 } from './lib/storage';
+import { updateSessionTimeAndResequence, resequenceDaySessions } from './lib/timeUtils';
 import {
   auth,
   onAuthStateChanged,
@@ -49,6 +50,7 @@ import { FocusTimerView } from './components/Timer/FocusTimerView';
 import { AIAssistantView } from './components/Assistant/AIAssistantView';
 import { SettingsModal } from './components/Settings/SettingsModal';
 import { AuthModal } from './components/Auth/AuthModal';
+import { ToastContainer, ToastMessage } from './components/Toast';
 
 export default function App() {
   // Default initial active tab: 'landing' (Overview) if logged out, or 'dashboard' if logged in
@@ -86,9 +88,22 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode>('signup');
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
 
   // Temporary container for newly generated plan during step animation
   const [pendingPlan, setPendingPlan] = useState<StudyPlan | null>(null);
+
+  // Toast System
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (text: string, type: 'success' | 'info' | 'warning' = 'success') => {
+    const newToast: ToastMessage = { id: `toast-${Date.now()}-${Math.random()}`, text, type };
+    setToasts((prev) => [...prev.slice(-3), newToast]);
+  };
+
+  const handleDismissToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Firebase Auth State Listener
   useEffect(() => {
@@ -156,6 +171,7 @@ export default function App() {
     setCurrentUser(user);
     setActiveTabState('dashboard');
     setIsAuthModalOpen(false);
+    addToast(`Welcome back, ${user.name}!`, 'success');
 
     // Fetch user cloud data
     const remoteData = await getUserStudyData(user.id);
@@ -174,6 +190,7 @@ export default function App() {
     setProgress(EMPTY_PROGRESS);
     setActiveTabState('dashboard');
     setIsAuthModalOpen(false);
+    addToast(`Welcome to StudyForge AI, ${user.name}!`, 'success');
   };
 
   const handleLogout = async () => {
@@ -188,6 +205,7 @@ export default function App() {
     setStudyPlan(EMPTY_STUDY_PLAN);
     setProgress(EMPTY_PROGRESS);
     setActiveTabState('landing');
+    addToast('Signed out successfully.', 'info');
   };
 
   // Handler 1: Toggle task / session complete
@@ -230,6 +248,24 @@ export default function App() {
     }
   };
 
+  // Handler 1.5: Update Session Time directly & re-sequence subsequent sessions
+  const handleUpdateSessionTime = (dayIdx: number, sessionId: string, newStartTime: string, newDurationMins?: number) => {
+    if (!studyPlan || !studyPlan.days) return;
+
+    const updatedDays = studyPlan.days.map((day, dIdx) => {
+      if (dIdx !== dayIdx) return day;
+      const resequencedSessions = updateSessionTimeAndResequence(
+        day.sessions,
+        sessionId,
+        newStartTime,
+        newDurationMins
+      );
+      return { ...day, sessions: resequencedSessions };
+    });
+
+    setStudyPlan({ ...studyPlan, days: updatedDays });
+  };
+
   // Handler 2: Generate Study Plan (calls API)
   const handleGeneratePlanSubmit = async (formData: {
     subjects: Subject[];
@@ -237,6 +273,7 @@ export default function App() {
     studyDays: string[];
     goal: LearningGoal;
     sessionLengthMinutes: number;
+    preferredStartTime?: string;
   }) => {
     setIsPlannerFormOpen(false);
     setIsGeneratingLoading(true);
@@ -249,22 +286,87 @@ export default function App() {
       });
       const data = await response.json();
 
-      if (data.plan) {
-        setPendingPlan(data.plan);
+      if (data && data.plan) {
+        setStudyPlan(data.plan);
+      } else {
+        const startHStr = formData.preferredStartTime || '09:00';
+        const fallbackPlan: StudyPlan = {
+          id: `plan-fb-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          goal: formData.goal || 'high_grades',
+          sessionLengthMinutes: formData.sessionLengthMinutes || 45,
+          availableHoursPerDay: formData.availableHoursPerDay || 4,
+          studyDays: formData.studyDays || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          days: [
+            {
+              dayName: 'Today (Day 1)',
+              dateString: new Date().toISOString().split('T')[0],
+              totalMinutes: (formData.subjects || []).length * (formData.sessionLengthMinutes || 45),
+              sessions: resequenceDaySessions((formData.subjects || []).map((sub, idx) => ({
+                id: `s-fb-${idx}`,
+                dayIndex: 0,
+                subjectId: sub.id,
+                subjectName: sub.name,
+                subjectColor: sub.color || '#3b82f6',
+                topic: `Core concepts & practice in ${sub.name}`,
+                durationMinutes: formData.sessionLengthMinutes || 45,
+                priority: sub.priority || 'medium',
+                type: 'learning',
+                completed: false,
+                notes: 'Focus on primary formulas and problem solving.'
+              })), startHStr)
+            }
+          ],
+          aiReasoning: 'Generated intelligent study plan optimized for your selected subjects and time constraints.'
+        };
+        setStudyPlan(fallbackPlan);
       }
     } catch (err) {
       console.error('Plan generation failed:', err);
+      const startHStr = formData.preferredStartTime || '09:00';
+      const fallbackPlan: StudyPlan = {
+        id: `plan-fb-err-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        goal: formData.goal || 'high_grades',
+        sessionLengthMinutes: formData.sessionLengthMinutes || 45,
+        availableHoursPerDay: formData.availableHoursPerDay || 4,
+        studyDays: formData.studyDays || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        days: [
+          {
+            dayName: 'Today (Day 1)',
+            dateString: new Date().toISOString().split('T')[0],
+            totalMinutes: (formData.subjects || []).length * (formData.sessionLengthMinutes || 45),
+            sessions: resequenceDaySessions((formData.subjects || []).map((sub, idx) => ({
+              id: `s-fb-${idx}`,
+              dayIndex: 0,
+              subjectId: sub.id,
+              subjectName: sub.name,
+              subjectColor: sub.color || '#3b82f6',
+              topic: `Core concepts & practice in ${sub.name}`,
+              durationMinutes: formData.sessionLengthMinutes || 45,
+              priority: sub.priority || 'medium',
+              type: 'learning',
+              completed: false,
+              notes: 'Focus on primary formulas and problem solving.'
+            })), startHStr)
+          }
+        ],
+        aiReasoning: 'Generated offline fallback study plan based on your selected subjects.'
+      };
+      setStudyPlan(fallbackPlan);
+    } finally {
+      setIsGeneratingLoading(false);
+      setActiveTab('planner');
     }
   };
 
   // Complete step loading state and display plan
   const handleLoadingComplete = () => {
     setIsGeneratingLoading(false);
-    if (pendingPlan) {
-      setStudyPlan(pendingPlan);
-      setPendingPlan(null);
-    }
     setActiveTab('planner');
+    addToast('Your AI Study Plan has been created and loaded!', 'success');
   };
 
   // Handler 3: Adjust Plan (calls API)
@@ -285,9 +387,11 @@ export default function App() {
 
       if (data.plan) {
         setStudyPlan(data.plan);
+        addToast('Study plan adjusted successfully!', 'success');
       }
     } catch (err) {
       console.error('Adjust plan failed:', err);
+      addToast('Could not adjust plan. Try again.', 'warning');
     } finally {
       setIsAdjusting(false);
       setIsAdjustModalOpen(false);
@@ -299,6 +403,7 @@ export default function App() {
   const handleAddSubject = (newSubj: Subject) => {
     const updated = [...subjects, newSubj];
     setSubjects(updated);
+    addToast(`Added subject "${newSubj.name}"!`, 'success');
   };
 
   // Handler 5: Update Subject
@@ -369,7 +474,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#030507] text-gray-100 flex flex-col md:flex-row font-sans selection:bg-[#0070F3] selection:text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#030507] text-gray-100 flex flex-col font-sans selection:bg-[#0070F3] selection:text-white overflow-x-hidden">
       {/* Background ambient lighting per Elegant Dark theme */}
       <div className="fixed top-[-200px] right-[-200px] w-[600px] h-[600px] bg-[#0070F3] opacity-10 blur-[120px] rounded-full pointer-events-none z-0" />
       <div className="fixed bottom-[-100px] left-[100px] w-[400px] h-[400px] bg-[#0A1A2F] opacity-20 blur-[100px] rounded-full pointer-events-none z-0" />
@@ -383,6 +488,8 @@ export default function App() {
         currentUser={currentUser}
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
+        isHamburgerOpen={isHamburgerOpen}
+        onCloseHamburger={() => setIsHamburgerOpen(false)}
       />
 
       {/* Main Content Area */}
@@ -394,6 +501,8 @@ export default function App() {
           currentUser={currentUser}
           onOpenAuth={handleOpenAuth}
           onLogout={handleLogout}
+          isHamburgerOpen={isHamburgerOpen}
+          onToggleHamburger={() => setIsHamburgerOpen((prev) => !prev)}
         />
 
         <main className="flex-1 p-3 sm:p-8 max-w-7xl w-full mx-auto pb-24 sm:pb-8">
@@ -424,6 +533,7 @@ export default function App() {
               onOpenCreateModal={() => setIsPlannerFormOpen(true)}
               onOpenAdjustModal={() => setIsAdjustModalOpen(true)}
               setActiveTab={setActiveTab}
+              onUpdateSessionTime={handleUpdateSessionTime}
             />
           )}
 
@@ -508,6 +618,9 @@ export default function App() {
           }
         }}
       />
+
+      {/* Floating User Feedback Toast System */}
+      <ToastContainer toasts={toasts} onDismiss={handleDismissToast} />
     </div>
   );
 }

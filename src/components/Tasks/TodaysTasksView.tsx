@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StudyPlan, ActiveTab } from '../../types';
 import { Card3D } from '../3d/Card3D';
+import { formatTime12h, formatTimeRange } from '../../lib/timeUtils';
 import confetti from 'canvas-confetti';
 import {
   CheckCircle2,
@@ -118,9 +119,9 @@ export const TodaysTasksView: React.FC<TodaysTasksViewProps> = ({
             return (
               <div key={session.id} className="relative flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
                 {/* Time Stamp Node */}
-                <div className="sm:w-20 text-xs font-mono font-bold text-cyan-400 flex items-center gap-2 sm:justify-end shrink-0">
-                  <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] hidden sm:block absolute left-[91px] z-10" />
-                  <span>{session.startTime || `0${9 + sIdx}:00`}</span>
+                <div className="sm:w-28 text-xs font-mono font-bold text-cyan-400 flex items-center gap-2 sm:justify-end shrink-0">
+                  <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] hidden sm:block absolute left-[123px] z-10" />
+                  <span>{session.startTime ? formatTime12h(session.startTime) : `0${9 + sIdx}:00 AM`}</span>
                 </div>
 
                 {/* Card Container */}

@@ -1,6 +1,8 @@
 import React from 'react';
 import { ActiveTab, ProgressStats, StudyPlan, Subject } from '../types';
 import { Card3D } from './3d/Card3D';
+import { QuickStartGuide } from './QuickStartGuide';
+import { formatTimeRange } from '../lib/timeUtils';
 import {
   Sparkles,
   Clock,
@@ -94,6 +96,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Onboarding Quick Start Guide */}
+      <QuickStartGuide setActiveTab={setActiveTab} onOpenCreateModal={onOpenCreateModal} />
 
       {/* Metrics Row (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -294,8 +299,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <CheckCircle2 className="w-3.5 h-3.5 fill-current" />
                       </button>
 
-                      <div className="font-mono text-xs text-gray-400 min-w-[90px]">
-                        {session.startTime && session.endTime ? `${session.startTime} – ${session.endTime}` : `${session.durationMinutes}m`}
+                      <div className="font-mono text-xs text-gray-400 min-w-[120px]">
+                        {formatTimeRange(session.startTime, session.endTime, session.durationMinutes)}
                       </div>
 
                       <div className="space-y-0.5">
