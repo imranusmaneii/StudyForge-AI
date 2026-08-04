@@ -31,21 +31,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span>AI-POWERED ACADEMIC SCHEDULING PLATFORM</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.1]">
-            Build your <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(59,130,246,0.6)] inline-block">
-              <SplitText
-                text="smartest study plan."
-                delay={40}
-                duration={0.8}
-                ease="power3.out"
-                splitType="chars"
-                from={{ opacity: 0, y: 35 }}
-                to={{ opacity: 1, y: 0 }}
-                textAlign="left"
-                tag="span"
-              />
-            </span>
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight sm:leading-[1.15]">
+            <span className="block mb-2">Build your</span>
+            <SplitText
+              text="smartest study plan."
+              className="block bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(59,130,246,0.6)] py-1"
+              delay={40}
+              duration={0.8}
+              ease="power3.out"
+              splitType="words"
+              from={{ opacity: 0, y: 30 }}
+              to={{ opacity: 1, y: 0 }}
+              textAlign="left"
+              tag="div"
+            />
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
