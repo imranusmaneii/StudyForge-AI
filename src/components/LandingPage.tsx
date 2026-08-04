@@ -2,6 +2,7 @@ import React from 'react';
 import { ActiveTab } from '../types';
 import { Hero3DCanvas } from './3d/Hero3DCanvas';
 import { Card3D } from './3d/Card3D';
+import SplitText from './SplitText';
 import { Sparkles, CalendarRange, Zap, ShieldCheck, Flame, ArrowRight, Play, CheckCircle2, Bot, BookOpen } from 'lucide-react';
 
 interface LandingPageProps {
@@ -32,8 +33,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.1]">
             Build your <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(59,130,246,0.6)]">
-              smartest study plan.
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(59,130,246,0.6)] inline-block">
+              <SplitText
+                text="smartest study plan."
+                delay={40}
+                duration={0.8}
+                ease="power3.out"
+                splitType="chars"
+                from={{ opacity: 0, y: 35 }}
+                to={{ opacity: 1, y: 0 }}
+                textAlign="left"
+                tag="span"
+              />
             </span>
           </h1>
 
@@ -107,7 +118,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* Core Features Bento Grid */}
       <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">Engineered for Academic Mastery</h2>
+          <SplitText
+            text="Engineered for Academic Mastery"
+            className="text-2xl sm:text-3xl font-bold text-white"
+            delay={35}
+            duration={0.7}
+            ease="power3.out"
+            splitType="words"
+            from={{ opacity: 0, y: 25 }}
+            to={{ opacity: 1, y: 0 }}
+            textAlign="center"
+            tag="h2"
+          />
           <p className="text-sm text-slate-400 mt-2">
             Every feature is designed to eliminate study paralysis, prioritize high-impact subjects, and adapt to schedule changes.
           </p>
