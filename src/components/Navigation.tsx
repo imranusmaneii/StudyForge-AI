@@ -71,7 +71,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           />
 
           {/* Drawer Sidebar */}
-          <div className="relative z-10 w-80 max-w-[85vw] h-full bg-[#05080D] border-r border-white/10 flex flex-col justify-between p-5 shadow-[0_0_50px_rgba(0,112,243,0.3)] animate-in slide-in-from-left duration-300">
+          <div className="relative z-10 w-80 max-w-[85vw] h-full bg-[#05080D] border-r border-white/10 flex flex-col justify-between p-5 shadow-[0_0_50px_rgba(0,112,243,0.3)] animate-in slide-in-from-left duration-300 overflow-y-auto no-scrollbar">
             {/* Header & Brand */}
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -111,7 +111,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
 
               {/* Navigation Items */}
-              <nav className="space-y-1 overflow-y-auto max-h-[55vh] pr-1">
+              <nav className="space-y-1 overflow-y-auto max-h-[55vh] pr-1 no-scrollbar">
                 {navItems.map((item) => {
                   const isActive = activeTab === item.id;
                   const isProtected = !currentUser && item.id !== 'landing';
