@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActiveTab, ProgressStats, StudyPlan, Subject } from '../types';
+import { ActiveTab, ProgressStats, StudyPlan, Subject, User } from '../types';
 import { Card3D } from './3d/Card3D';
 import { QuickStartGuide } from './QuickStartGuide';
 import { formatTimeRange } from '../lib/timeUtils';
@@ -26,6 +26,7 @@ interface DashboardProps {
   onToggleSessionComplete: (dayIdx: number, sessionId: string) => void;
   onOpenCreateModal: () => void;
   onOpenAdjustModal: () => void;
+  currentUser?: User | null;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -35,8 +36,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   setActiveTab,
   onToggleSessionComplete,
   onOpenCreateModal,
-  onOpenAdjustModal
+  onOpenAdjustModal,
+  currentUser
 }) => {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const displayName = currentUser?.name ? currentUser.name.trim() : 'Student';
+
   const today = studyPlan.days?.[0];
   const todaySessions = today?.sessions || [];
   const completedCount = todaySessions.filter(s => s.completed).length;
@@ -69,7 +80,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <span>DAILY ACADEMIC INTELLIGENCE OVERVIEW</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Good morning, Student.
+            {getGreeting()}, {displayName}.
           </h2>
           <p className="text-xs sm:text-sm text-gray-300 mt-1 max-w-2xl leading-relaxed">
             Welcome back to StudyForge AI. Track today's focus blocks, review upcoming exam deadlines, and keep your study streak alive.

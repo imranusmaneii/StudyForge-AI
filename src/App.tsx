@@ -523,6 +523,7 @@ export default function App() {
               onToggleSessionComplete={handleToggleSessionComplete}
               onOpenCreateModal={() => setIsPlannerFormOpen(true)}
               onOpenAdjustModal={() => setIsAdjustModalOpen(true)}
+              currentUser={currentUser}
             />
           )}
 
