@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActiveTab, ProgressStats, StudyPlan, Subject, User } from '../types';
+import alexAvatar from '../assets/images/alex_avatar_1785976615133.jpg';
 import { Card3D } from './3d/Card3D';
 import { QuickStartGuide } from './QuickStartGuide';
 import { formatTimeRange } from '../lib/timeUtils';
@@ -349,64 +350,77 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        {/* Right Col: Quick Assistant & Subject Snapshots */}
+        {/* Right Col: Alex Personal Study Assistant Card */}
         <div className="space-y-6">
-          {/* Quick AI Prompt Card */}
-          <Card3D glowColor="blue" className="bg-[#080B12]">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Bot className="w-5 h-5 text-[#0070F3]" />
-                <h3 className="text-sm font-bold text-white">AI Study Copilot</h3>
-              </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0070F3]/10 text-[#0070F3] font-mono border border-[#0070F3]/20">Gemini</span>
-            </div>
-            <p className="text-xs text-gray-400 leading-relaxed mb-4">
-              Need exam prep advice or help prioritizing recursion vs physics?
-            </p>
-            <button
-              onClick={() => setActiveTab('assistant')}
-              className="w-full py-2.5 rounded-xl bg-[#0070F3]/10 hover:bg-[#0070F3]/20 border border-[#0070F3]/30 text-[#0070F3] text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-            >
-              <span>Ask StudyForge AI</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-          </Card3D>
+          <Card3D glowColor="blue" className="bg-[#080B12] p-5 sm:p-6 border border-white/10 relative overflow-hidden">
+            {/* Top ambient glow */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#0070F3] opacity-15 blur-[50px] rounded-full pointer-events-none" />
 
-          {/* Subjects Overview */}
-          <div className="p-5 rounded-2xl bg-[#080B12] border border-white/5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#0070F3]" />
-                <span>Subject Matrix</span>
-              </h3>
+            {/* Header with Alex Avatar */}
+            <div className="flex items-center gap-3.5 mb-4 border-b border-white/10 pb-4">
+              <div className="relative w-12 h-12 rounded-full border-2 border-[#0070F3] shadow-[0_0_20px_rgba(0,112,243,0.5)] overflow-hidden shrink-0">
+                <img
+                  src={alexAvatar}
+                  alt="Alex — Your Personal AI Assistant"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-1">
+                  <h3 className="text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
+                    <span>Alex</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-medium">
+                      Online
+                    </span>
+                  </h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#0070F3]/20 text-[#0070F3] font-mono font-bold border border-[#0070F3]/30">
+                    Personal AI
+                  </span>
+                </div>
+                <p className="text-xs text-gray-300 font-medium truncate mt-0.5">
+                  Your Personal Study Assistant
+                </p>
+              </div>
+            </div>
+
+            {/* Content & Capabilities */}
+            <p className="text-xs text-gray-300 leading-relaxed mb-4">
+              Need help with formulas, concept diagrams, exam strategy, or custom study advice? Ask Alex anytime for instant academic guidance.
+            </p>
+
+            {/* Quick Prompt Suggestions */}
+            <div className="space-y-2 mb-4">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 font-bold block">
+                Quick Prompts for Alex:
+              </span>
               <button
-                onClick={() => setActiveTab('subjects')}
-                className="text-xs text-[#0070F3] hover:underline font-semibold"
+                onClick={() => setActiveTab('assistant')}
+                className="w-full text-left p-2.5 rounded-xl bg-[#030507]/80 hover:bg-[#0070F3]/10 border border-white/5 hover:border-[#0070F3]/30 text-xs text-gray-200 hover:text-white transition-all flex items-center justify-between group"
               >
-                Manage
+                <span>📐 "Generate a Math & Physics Formula Sheet"</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#0070F3] transition-colors" />
+              </button>
+              <button
+                onClick={() => setActiveTab('assistant')}
+                className="w-full text-left p-2.5 rounded-xl bg-[#030507]/80 hover:bg-[#0070F3]/10 border border-white/5 hover:border-[#0070F3]/30 text-xs text-gray-200 hover:text-white transition-all flex items-center justify-between group"
+              >
+                <span>🔄 "Show active recall study diagram"</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#0070F3] transition-colors" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              {subjects.slice(0, 4).map((subj) => (
-                <div key={subj.id} className="p-3 rounded-xl bg-[#030507]/60 border border-white/5 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: subj.color }} />
-                      <span className="font-semibold text-gray-200">{subj.name}</span>
-                    </div>
-                    <span className="font-mono text-[#0070F3] font-bold">{subj.knowledgeLevel}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${subj.knowledgeLevel}%`, backgroundColor: subj.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            {/* Primary Action Button */}
+            <button
+              id="dash-ask-alex-btn"
+              onClick={() => setActiveTab('assistant')}
+              className="w-full py-3 px-4 rounded-xl bg-[#0070F3] hover:bg-[#0070F3]/90 text-white font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,112,243,0.35)] transition-all flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-cyan-300" />
+              <span>Ask Alex Anything</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </Card3D>
         </div>
       </div>
     </div>

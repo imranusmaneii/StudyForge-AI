@@ -120,7 +120,7 @@ export function loadChatMessages(userId?: string): ChatMessage[] {
     {
       id: `welcome-${userId}`,
       sender: 'assistant',
-      text: "Hello! I am StudyForge AI, your universal academic tutor. Ask me anything about Law, Biology, Maths, Physics, CS, or request charts and data sets!",
+      text: "Hello! I am Alex, your personal AI study assistant. Ask me anything about Law, Biology, Maths, Physics, CS, or request formula sheets, diagrams, and study schedules!",
       timestamp: 'Just now'
     }
   ] : INITIAL_CHAT_MESSAGES;

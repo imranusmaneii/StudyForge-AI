@@ -310,7 +310,7 @@ export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-1',
     sender: 'assistant',
-    text: 'Hello! I am **StudyForge AI**, your intelligent academic copilot. I have loaded your current subjects (*Mathematics*, *Physics*, *Programming*, and *Machine Learning*).\n\nHow can I help you optimize your study workflow today?',
+    text: 'Hello! I am **Alex**, your personal AI study assistant. I have loaded your current subjects (*Mathematics*, *Physics*, *Programming*, and *Machine Learning*).\n\nHow can I help you optimize your study workflow today?',
     timestamp: '09:00 AM'
   }
 ];

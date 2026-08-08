@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
     tasks: { main: "Today's Study Schedule", sub: 'Track your scheduled sessions and mark tasks completed.' },
     progress: { main: 'Analytics & Performance', sub: 'Visualize study hours, streaks, and subject mastery.' },
     timer: { main: 'Focus Timer', sub: 'Pomodoro focus blocks with ambient audio & visual feedback.' },
-    assistant: { main: 'AI Academic Assistant', sub: 'Ask contextual study questions powered by Gemini AI.' },
+    assistant: { main: 'Alex — Your Personal AI Assistant', sub: 'Ask contextual study questions, formulas, diagrams & study advice.' },
   };
 
   const current = titles[activeTab] || titles.dashboard;

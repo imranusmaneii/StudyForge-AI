@@ -450,6 +450,11 @@ export default function App() {
       });
       const data = await response.json();
 
+      if (data.adjustedPlan) {
+        setStudyPlan(data.adjustedPlan);
+        addToast('Alex updated your study plan!', 'success');
+      }
+
       const aiMsg: ChatMessage = {
         id: `msg-ai-${Date.now()}`,
         sender: 'assistant',

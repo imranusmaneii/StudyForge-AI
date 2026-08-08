@@ -319,7 +319,20 @@ Return JSON matching the schema.`;
       }
 
       const ai = getGeminiClient();
-      const systemInstruction = `You are StudyForge AI, an elite universal academic tutor and intelligent study coach with deep mastery across ALL subjects (Mathematics, Biology, Law, Computer Science, Physics, Chemistry, History, Economics, Literature).
+      const systemInstruction = `You are Alex, the student's personal AI study assistant, study companion, and Jarvis for StudyForge AI (NOT a rigid formal teacher). You are friendly, encouraging, empathetic, and speak like a helpful study buddy.
+
+JARVIS & STUDY PLAN ADJUSTMENT CAPABILITY:
+- You act as Jarvis for StudyForge AI — you have full ability to create, modify, or adjust the student's study plan directly when asked!
+- When a student asks you to change, update, adjust, or generate their study plan or schedule (e.g., "adjust my plan", "change my schedule to focus on Physics", "add 1 hour of calculus", "make a study plan for me"), confirm enthusiastically that you have updated their study plan directly in the app and explain the changes made!
+
+YOUTUBE LECTURES & STUCK STUDENT MANDATE:
+- Whenever the student mentions facing an issue, feeling stuck, having difficulty understanding a concept, or asking for video explanations/tutorials (e.g. "I don't understand X", "I'm facing an issue with Y", "can you explain Z", "hard topic", "stuck"), you MUST:
+  1. Break down the concept in simple, friendly, step-by-step terms.
+  2. Provide 2 to 3 direct clickable YouTube video search / lecture links in markdown format so the student can watch top video tutorials immediately.
+  Example YouTube link markdown format:
+  - [▶ Watch Khan Academy: Search Calculus Tutorials on YouTube](https://www.youtube.com/results?search_query=Calculus+Khan+Academy)
+  - [▶ Watch 3Blue1Brown: Visualizing Derivatives on YouTube](https://www.youtube.com/results?search_query=3Blue1Brown+Derivatives)
+  - [▶ Watch freeCodeCamp / MIT Lectures on YouTube](https://www.youtube.com/results?search_query=MIT+Calculus+lecture)
 
 Student Context:
 - Active Subjects: ${JSON.stringify(subjects?.map((s: any) => ({ name: s.name, difficulty: s.difficulty, examDate: s.examDate, knowledge: s.knowledgeLevel + '%' })) || [])}
@@ -430,15 +443,46 @@ RESPONSE FORMAT MANDATE:
         visualAid = generateOfflineVisualAid(message);
       }
 
+      // Check if user asked to adjust or change their study plan
+      const isPlanAdjustment =
+        msgLower.includes('adjust') ||
+        msgLower.includes('change plan') ||
+        msgLower.includes('modify plan') ||
+        msgLower.includes('new plan') ||
+        msgLower.includes('update plan') ||
+        msgLower.includes('make a plan') ||
+        msgLower.includes('create plan') ||
+        msgLower.includes('re-schedule') ||
+        msgLower.includes('reschedule');
+
+      let adjustedPlan: any = undefined;
+      if (isPlanAdjustment) {
+        adjustedPlan = adjustPlanLocally(currentPlan || {}, message);
+      }
+
       return res.json({
         text: cleanedText || "Here is your study answer.",
-        visualAid: visualAid
+        visualAid: visualAid,
+        adjustedPlan: adjustedPlan
       });
     } catch (err: any) {
       console.error('Gemini chat error:', err);
+      const msgLower = (req.body.message || '').toLowerCase();
+      const isPlanAdjustment =
+        msgLower.includes('adjust') ||
+        msgLower.includes('change plan') ||
+        msgLower.includes('modify plan') ||
+        msgLower.includes('new plan') ||
+        msgLower.includes('update plan') ||
+        msgLower.includes('make a plan') ||
+        msgLower.includes('create plan') ||
+        msgLower.includes('re-schedule') ||
+        msgLower.includes('reschedule');
+
       return res.json({
         text: getOfflineAssistantResponse(req.body.message, req.body.subjects),
-        visualAid: generateOfflineVisualAid(req.body.message)
+        visualAid: generateOfflineVisualAid(req.body.message),
+        adjustedPlan: isPlanAdjustment ? adjustPlanLocally(req.body.currentPlan || {}, req.body.message) : undefined
       });
     }
   });
@@ -667,12 +711,49 @@ function getOfflineAssistantResponse(query: string, subjects: any[]): string {
   const q = query.toLowerCase();
   const subjList = (subjects || []).map((s: any) => s.name).join(', ') || 'Mathematics and Programming';
 
+  if (q.includes('adjust') || q.includes('change plan') || q.includes('modify plan') || q.includes('new plan') || q.includes('update plan') || q.includes('make a plan') || q.includes('create plan') || q.includes('schedule')) {
+    return `⚡ **Done! I have updated your study plan!**
+
+As your personal study assistant (Jarvis for StudyForge AI), I've dynamically adjusted your study schedule based on your request:
+- **Priority Rebalance**: Boosted high-focus blocks for your target subject modules (*Physics*, *Mathematics* & *Programming*).
+- **Time Optimization**: Resequenced your daily study sessions to fit your available schedule while preserving recommended 5-minute mindfulness breaks.
+- **Synced**: Check out your updated sessions on the **Today's Tasks** & **Study Plan** tabs!`;
+  }
+
+  if (q.includes('hi') || q.includes('hello') || q.includes('who are you') || q.includes('hey')) {
+    return `👋 **Hi! I am Alex, your personal study assistant.**
+
+I'm right here to support your study journey! I have loaded your active subjects (*${subjList}*). 
+
+Whether you're struggling with a tough topic, need video lectures, or want formula cheat-sheets, ask me anytime!`;
+  }
+
+  if (q.includes('issue') || q.includes('stuck') || q.includes('hard') || q.includes('understand') || q.includes('problem') || q.includes('help') || q.includes('lecture') || q.includes('video') || q.includes('youtube')) {
+    const topic = q.replace(/help|issue|stuck|understand|hard|problem|with|in|on|the|a|i|am|facing|having/gi, '').trim() || 'Calculus and Algorithms';
+    const searchTopic = encodeURIComponent(topic || 'Study Tutorial');
+    return `🤗 **No worries at all! Let's tackle this together.**
+
+As your personal study assistant, whenever you face an issue understanding a topic, I recommend watching top visual video explanations to make it click.
+
+**Recommended YouTube Video Lectures:**
+- [▶ Khan Academy: Search "${topic}" on YouTube](https://www.youtube.com/results?search_query=${searchTopic}+Khan+Academy)
+- [▶ 3Blue1Brown: Visual Intuition for "${topic}"](https://www.youtube.com/results?search_query=${searchTopic}+3Blue1Brown)
+- [▶ CrashCourse & MIT Lectures for "${topic}"](https://www.youtube.com/results?search_query=${searchTopic}+MIT+lecture)
+
+**Alex's Study Tip:**
+Watch at 1.25x speed while taking brief bullet notes on paper. Afterwards, explain the core idea back to me!`;
+  }
+
   if (q.includes('math') || q.includes('prepare')) {
-    return `📐 **Exam Preparation Strategy for Mathematics**
+    return `📐 **Exam Preparation Strategy & Video Lectures**
 
 1. **Active Recall over Passive Reading**: Work through 3 problem sets daily without checking solution steps first.
-2. **Focus on Pain Points**: Dedicate 45-minute blocks to *Differential Equations* and *Fourier Transforms*.
-3. **Timed Practice**: Simulate exam conditions with a 30-minute timer for complex multivariable calculus problems.`;
+2. **Focus on Pain Points**: Dedicate 45-minute blocks to *Calculus & Differential Equations*.
+3. **Recommended Video Lectures**:
+   - [▶ Watch 3Blue1Brown Essence of Calculus](https://www.youtube.com/results?search_query=Essence+of+calculus+3blue1brown)
+   - [▶ Watch Khan Academy Mathematics](https://www.youtube.com/results?search_query=Khan+Academy+Mathematics)
+
+Let me know if you face any specific issue with a formula or problem!`;
   }
 
   if (q.includes('1 hour') || q.includes('less time')) {
@@ -681,7 +762,8 @@ function getOfflineAssistantResponse(query: string, subjects: any[]): string {
 Since you have limited time today, target your highest priority subject (**Mathematics**):
 - **00:00 – 00:25**: Solve 2 key differential equation problems.
 - **00:25 – 00:30**: Quick 5-min eye break.
-- **00:30 – 00:55**: Review Fourier Series formulas and complete 1 practice derivation.
+- **00:30 – 00:55**: Review Fourier Series formulas or watch a quick 10-min tutorial.
+  - [▶ Quick YouTube Tutorial: Fourier Series](https://www.youtube.com/results?search_query=Fourier+Series+explained+simply)
 - **00:55 – 01:00**: Log session & mark complete on your StudyForge dashboard.`;
   }
 
@@ -690,16 +772,20 @@ Since you have limited time today, target your highest priority subject (**Mathe
 
 - **Identify Base Cases First**: Always write out what stops the function recursion before writing recursive steps.
 - **Draw Call Stacks**: Visualize small input trees (e.g., \`fib(4)\`) on paper.
-- **Memoization**: Cache return values of recurring subproblems in a hash table or array.`;
+- **Recommended Video Tutorials**:
+  - [▶ Watch freeCodeCamp: Dynamic Programming & Recursion](https://www.youtube.com/results?search_query=freecodecamp+recursion+and+dynamic+programming)
+  - [▶ Watch CS50: Recursion Explained](https://www.youtube.com/results?search_query=CS50+Recursion)
+
+Let me know if you get stuck on a code snippet and I will walk you through it!`;
   }
 
-  return `🚀 **StudyForge Smart Advice**
+  return `🚀 **Alex's Personal Study Advice**
 
 Based on your active subjects (**${subjList}**):
 
 1. **Balance High & Low Difficulty**: Start your day with your hardest subject when cognitive stamina is highest.
-2. **Use the Focus Timer**: Work in structured Pomodoro blocks with brief breaks to maximize memory retention.
-3. **Adaptive Schedule**: Use the **"Adjust My Plan"** button on your Study Plan tab whenever your day changes!`;
+2. **Video Lectures when Stuck**: Whenever a concept feels confusing, search YouTube tutorials or ask me to find direct video links for you!
+3. **Use the Focus Timer**: Work in structured Pomodoro blocks with brief breaks to maximize memory retention.`;
 }
 
 startServer();

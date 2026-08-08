@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { ChatMessage, Subject, StudyPlan, ProgressStats } from '../../types';
 import { ChatVisualAid } from './ChatVisualAid';
 import { Bot, Send, User, Loader2, BarChart2, Scale, Dna, Binary, GitFork, Sparkles, RefreshCw } from 'lucide-react';
+import alexAvatar from '../../assets/images/alex_avatar_1785976615133.jpg';
 
 interface AIAssistantViewProps {
   messages: ChatMessage[];
@@ -22,6 +23,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestionChips = [
+    { label: '⚡ Adjust My Plan', icon: <Sparkles className="w-3.5 h-3.5 text-yellow-400" />, prompt: 'Alex, please adjust my study plan: rebalance my daily sessions and focus on Physics & Math today.' },
     { label: '📐 Formula Sheet', icon: <Binary className="w-3.5 h-3.5 text-emerald-400" />, prompt: 'Generate a high-yield Mathematics & Physics formula sheet for my exams.' },
     { label: '🔄 Concept Diagram', icon: <GitFork className="w-3.5 h-3.5 text-purple-400" />, prompt: 'Can you generate a concept diagram for the memory consolidation study cycle?' },
     { label: '📊 Respiration Chart', icon: <Dna className="w-3.5 h-3.5 text-[#00A3FF]" />, prompt: 'Can you show me a chart comparing ATP yield in Cellular Respiration?' },
@@ -59,20 +61,26 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
     <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-160px)] sm:h-[620px]">
       {/* Top Bar / Header */}
       <div className="bg-[#080B12] border border-white/10 rounded-t-2xl p-3 sm:p-4 flex items-center justify-between gap-3 shrink-0 shadow-md">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0070F3] to-cyan-500 text-white flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(0,112,243,0.4)]">
-            <Bot className="w-4 h-4" />
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="relative w-10 h-10 rounded-full border-2 border-[#0070F3] shadow-[0_0_15px_rgba(0,112,243,0.5)] overflow-hidden shrink-0">
+            <img
+              src={alexAvatar}
+              alt="Alex — Personal Assistant"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </div>
           <div className="min-w-0">
             <h2 className="text-sm sm:text-base font-extrabold text-white tracking-tight leading-none flex items-center gap-1.5">
-              <span>AI Academic Assistant</span>
+              <span>Alex</span>
+              <span className="text-gray-400 text-xs font-normal hidden sm:inline">— Your Personal Study Assistant</span>
               <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live
+                Online
               </span>
             </h2>
-            <p className="text-[11px] text-gray-400 truncate mt-0.5">
-              Ask questions or request formula sheets, diagrams, charts & tables.
+            <p className="text-[11px] text-gray-400 truncate mt-1">
+              Ask Alex anything: formula sheets, concept diagrams, study schedules & exam tips.
             </p>
           </div>
         </div>
@@ -88,7 +96,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
       <div className="bg-[#050810] border-x border-b border-white/10 px-2.5 py-2 flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0 snap-x">
         <span className="text-[10px] text-gray-400 font-mono font-bold uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-[#0070F3]" />
-          Quick Prompts:
+          Ask Alex:
         </span>
         {suggestionChips.map((chip, idx) => (
           <button
@@ -112,10 +120,19 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
               key={msg.id}
               className={`flex items-start gap-2 sm:gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                isUser ? 'bg-[#0070F3] text-white shadow-[0_0_12px_rgba(0,112,243,0.4)]' : 'bg-[#0E1320] border border-white/10 text-[#0070F3]'
+              <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 mt-0.5 border ${
+                isUser ? 'bg-[#0070F3] text-white border-[#0070F3] shadow-[0_0_12px_rgba(0,112,243,0.4)]' : 'border-[#0070F3]/50 bg-[#0E1320]'
               }`}>
-                {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                {isUser ? (
+                  <User className="w-4 h-4" />
+                ) : (
+                  <img
+                    src={alexAvatar}
+                    alt="Alex"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
               </div>
 
               <div className={`max-w-[85%] sm:max-w-[78%] p-3 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed break-words overflow-hidden ${
@@ -137,7 +154,17 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                         ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 text-gray-300 text-xs sm:text-sm">{children}</ol>,
                         strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
                         code: ({ children }) => <code className="px-1.5 py-0.5 rounded bg-blue-950/60 text-cyan-300 font-mono text-[11px] border border-blue-500/20">{children}</code>,
-                        pre: ({ children }) => <pre className="p-2.5 rounded-xl bg-[#05080E] border border-white/10 font-mono text-xs text-cyan-300 overflow-x-auto my-1.5">{children}</pre>
+                        pre: ({ children }) => <pre className="p-2.5 rounded-xl bg-[#05080E] border border-white/10 font-mono text-xs text-cyan-300 overflow-x-auto my-1.5">{children}</pre>,
+                        a: ({ href, children }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 my-1 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-semibold transition-all shadow-sm"
+                          >
+                            <span>{children}</span>
+                          </a>
+                        )
                       }}
                     >
                       {msg.text}
@@ -160,12 +187,17 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
 
         {isSending && (
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-xl bg-[#0E1320] border border-white/10 text-[#0070F3] flex items-center justify-center shrink-0">
-              <Bot className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-[#0070F3]/50 shrink-0">
+              <img
+                src={alexAvatar}
+                alt="Alex"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div className="px-3.5 py-2.5 rounded-2xl bg-[#0A0E1A] border border-blue-900/30 text-xs text-cyan-400 flex items-center gap-2 font-medium">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0070F3]" />
-              <span>Analyzing academic concepts & constructing response...</span>
+              <span>Alex is thinking & analyzing academic concepts...</span>
             </div>
           </div>
         )}
@@ -177,7 +209,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
       <form onSubmit={handleSubmit} className="bg-[#080B12] border-x border-b border-white/10 rounded-b-2xl p-2.5 sm:p-3 flex items-center gap-2 shrink-0 shadow-lg">
         <input
           type="text"
-          placeholder="Ask a question or request a formula sheet, diagram, chart..."
+          placeholder="Ask Alex a question or request a formula sheet, diagram, chart..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={isSending}

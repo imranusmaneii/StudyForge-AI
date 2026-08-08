@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActiveTab, User, AuthModalMode } from '../types';
+import alexAvatar from '../assets/images/alex_avatar_1785976615133.jpg';
 import {
   Sparkles,
   LayoutDashboard,
@@ -51,7 +52,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'tasks', label: "Today's Tasks", icon: <CheckCircle2 className="w-4 h-4" /> },
     { id: 'progress', label: 'Progress', icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'timer', label: 'Focus Timer', icon: <Timer className="w-4 h-4" /> },
-    { id: 'assistant', label: 'AI Assistant', icon: <Bot className="w-4 h-4" />, badge: 'Gemini' },
+    { id: 'assistant', label: 'Ask Alex', icon: <Bot className="w-4 h-4" />, badge: 'Alex' },
   ];
 
   const handleSelectTab = (tab: ActiveTab) => {
@@ -127,9 +128,15 @@ export const Navigation: React.FC<NavigationProps> = ({
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className={isActive ? 'text-[#0070F3]' : 'text-gray-400 group-hover:text-gray-200'}>
-                          {item.icon}
-                        </span>
+                        {item.id === 'assistant' ? (
+                          <div className="w-5 h-5 rounded-full overflow-hidden border border-[#0070F3] shadow-[0_0_8px_rgba(0,112,243,0.5)] shrink-0">
+                            <img src={alexAvatar} alt="Alex" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          </div>
+                        ) : (
+                          <span className={isActive ? 'text-[#0070F3]' : 'text-gray-400 group-hover:text-gray-200'}>
+                            {item.icon}
+                          </span>
+                        )}
                         <span>{item.label}</span>
                       </div>
 
