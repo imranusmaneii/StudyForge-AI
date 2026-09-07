@@ -31,7 +31,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>AI Engine Configuration</span>
             </div>
             <p className="text-xs text-slate-300">
-              Model: <strong className="text-white font-mono">Gemini 3.6 Flash</strong> (Server-side proxy active)
+              Model: <strong className="text-white font-mono">AI Study Engine 3.6</strong> (Server-side proxy active)
             </p>
           </div>
 

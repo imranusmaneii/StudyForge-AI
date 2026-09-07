@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StudyPlan, ActiveTab } from '../../types';
-import { Card3D } from '../3d/Card3D';
+import BorderGlow from '../BorderGlow';
+import SpotlightCard from '../SpotlightCard';
 import { formatTime12h, formatTimeRange } from '../../lib/timeUtils';
 import confetti from 'canvas-confetti';
 import {
@@ -125,52 +126,63 @@ export const TodaysTasksView: React.FC<TodaysTasksViewProps> = ({
                 </div>
 
                 {/* Card Container */}
-                <Card3D
-                  glowColor={isBreak ? 'purple' : 'blue'}
-                  className={`flex-1 ${session.completed ? 'opacity-70 bg-blue-950/10' : ''}`}
+                <BorderGlow
+                  glowColor={isBreak ? '270 90 65' : '210 100 60'}
+                  backgroundColor={isBreak ? '#140A22' : '#0A1326'}
+                  colors={isBreak ? ['#a855f7', '#c084fc', '#e879f9'] : ['#0070F3', '#3b82f6', '#60a5fa']}
+                  borderRadius={16}
+                  glowRadius={28}
+                  glowIntensity={1.1}
+                  edgeSensitivity={25}
+                  className={`flex-1 transition-all duration-300 ${session.completed ? 'opacity-70' : ''}`}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3.5">
-                      <button
-                        onClick={() => handleToggleWithConfetti(session.id, session.completed)}
-                        className={`mt-1 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
-                          session.completed
-                            ? 'bg-cyan-500 border-cyan-400 text-black shadow-[0_0_15px_rgba(6,182,212,0.8)]'
-                            : 'border-slate-600 hover:border-cyan-400 text-transparent'
-                        }`}
-                      >
-                        <CheckCircle2 className="w-4 h-4 fill-current" />
-                      </button>
+                  <SpotlightCard
+                    spotlightColor={isBreak ? 'rgba(168, 85, 247, 0.35)' : 'rgba(0, 112, 243, 0.35)'}
+                    className="bg-transparent border-none p-4 rounded-[inherit]"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-start gap-3.5">
+                        <button
+                          onClick={() => handleToggleWithConfetti(session.id, session.completed)}
+                          className={`mt-1 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
+                            session.completed
+                              ? 'bg-cyan-500 border-cyan-400 text-black shadow-[0_0_15px_rgba(6,182,212,0.8)]'
+                              : 'border-slate-600 hover:border-cyan-400 text-transparent'
+                          }`}
+                        >
+                          <CheckCircle2 className="w-4 h-4 fill-current" />
+                        </button>
 
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: session.subjectColor || '#3b82f6' }} />
-                          <h3 className={`text-base font-bold ${session.completed ? 'line-through text-slate-400' : 'text-white'}`}>
-                            {session.subjectName}
-                          </h3>
-                          <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase bg-blue-950 text-cyan-300 border border-blue-500/30">
-                            {session.type}
-                          </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase bg-slate-800 text-slate-300">
-                            {session.priority} Priority
-                          </span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: session.subjectColor || '#3b82f6' }} />
+                            <h3 className={`text-base font-bold ${session.completed ? 'line-through text-slate-400' : 'text-white'}`}>
+                              {session.subjectName}
+                            </h3>
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase bg-blue-950 text-cyan-300 border border-blue-500/30">
+                              {session.type}
+                            </span>
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase bg-slate-800 text-slate-300">
+                              {session.priority} Priority
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-300">{session.topic}</p>
                         </div>
-                        <p className="text-xs text-slate-300">{session.topic}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-blue-900/20">
+                        <span className="text-xs text-slate-400 font-mono">{session.durationMinutes} min</span>
+                        <button
+                          onClick={() => setActiveTab('timer')}
+                          className="px-3.5 py-1.5 rounded-lg bg-blue-900/40 hover:bg-blue-600/50 border border-blue-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
+                          <span>Start</span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-blue-900/20">
-                      <span className="text-xs text-slate-400 font-mono">{session.durationMinutes} min</span>
-                      <button
-                        onClick={() => setActiveTab('timer')}
-                        className="px-3.5 py-1.5 rounded-lg bg-blue-900/40 hover:bg-blue-600/50 border border-blue-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 transition-all"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
-                        <span>Focus Session</span>
-                      </button>
-                    </div>
-                  </div>
-                </Card3D>
+                  </SpotlightCard>
+                </BorderGlow>
               </div>
             );
           })

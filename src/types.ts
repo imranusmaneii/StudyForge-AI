@@ -90,7 +90,15 @@ export interface VisualAidPayload {
   data?: any[];
   headers?: string[];
   rows?: string[][];
-  diagramNodes?: { id: string; label: string; desc?: string }[];
+  diagramType?: 'flowchart' | 'mindmap' | 'cycle' | 'concept' | 'hierarchy';
+  diagramNodes?: {
+    id: string;
+    label: string;
+    desc?: string;
+    step?: number;
+    category?: string;
+    connectedTo?: string[];
+  }[];
   formulas?: { label: string; formula: string; explanation?: string }[];
   summary?: string;
 }
@@ -102,6 +110,7 @@ export interface ChatMessage {
   timestamp: string;
   isStreaming?: boolean;
   visualAid?: VisualAidPayload;
+  interactivePlanBuilder?: boolean;
 }
 
 export type ActiveTab = 'landing' | 'dashboard' | 'planner' | 'subjects' | 'tasks' | 'progress' | 'timer' | 'assistant';

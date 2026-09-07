@@ -2,7 +2,10 @@ import React from 'react';
 import { ActiveTab } from '../types';
 import { Hero3DCanvas } from './3d/Hero3DCanvas';
 import { Card3D } from './3d/Card3D';
+import SpotlightCard from './SpotlightCard';
+import BorderGlow from './BorderGlow';
 import SplitText from './SplitText';
+import StrokeText from './StrokeText';
 import { Sparkles, CalendarRange, Zap, ShieldCheck, Flame, ArrowRight, Play, CheckCircle2, Bot, BookOpen } from 'lucide-react';
 
 interface LandingPageProps {
@@ -23,27 +26,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <div className="absolute bottom-10 right-10 w-[500px] h-[300px] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Hero Section */}
-      <section className="relative pt-12 pb-20 px-4 sm:px-8 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
+      <section className="relative pt-10 pb-20 px-4 sm:px-8 lg:px-12 w-full max-w-full flex flex-col lg:flex-row items-center gap-12">
         {/* Left Hero Content */}
-        <div className="flex-1 space-y-6 text-center lg:text-left z-10">
+        <div className="flex-1 space-y-6 text-center lg:text-left z-10 w-full flex flex-col items-center lg:items-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/60 border border-blue-500/30 text-cyan-400 text-xs font-mono shadow-[0_0_20px_rgba(59,130,246,0.2)]">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin-slow" />
             <span>AI-POWERED ACADEMIC SCHEDULING PLATFORM</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight sm:leading-[1.15]">
-            <span className="block mb-2">Build your</span>
-            <SplitText
+          <h1 className="w-full space-y-1">
+            <StrokeText
+              text="Build your"
+              strokeColor="#FFFFFF"
+              fillColor="#FFFFFF"
+              strokeWidth={1.5}
+              drawDuration={1.4}
+              fillDelay={0.1}
+              stagger={0.04}
+              ease="power2.out"
+              trigger="mount"
+              fillMode="wipe"
+              fontSize={110}
+              fontWeight={800}
+              letterSpacing={-3}
+              align="responsive"
+            />
+            <StrokeText
               text="smartest study plan."
-              className="block bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(59,130,246,0.6)] py-1"
-              delay={40}
-              duration={0.8}
-              ease="power3.out"
-              splitType="words"
-              from={{ opacity: 0, y: 30 }}
-              to={{ opacity: 1, y: 0 }}
-              textAlign="left"
-              tag="div"
+              strokeColor="#FFFFFF"
+              fillColor="#FFFFFF"
+              strokeWidth={1.5}
+              drawDuration={1.6}
+              fillDelay={0.25}
+              stagger={0.03}
+              ease="power2.out"
+              trigger="mount"
+              fillMode="wipe"
+              fontSize={110}
+              fontWeight={800}
+              letterSpacing={-3}
+              align="responsive"
             />
           </h1>
 
@@ -83,14 +105,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-              <span>Gemini AI powered</span>
+              <span>AI Engine powered</span>
             </div>
           </div>
         </div>
 
         {/* Right 3D Visual Hero Component */}
         <div className="flex-1 w-full relative">
-          <Card3D glowColor="blue" className="w-full max-w-lg mx-auto overflow-hidden p-2 bg-[#050810]/80">
+          <Card3D glowColor="blue" className="w-full overflow-hidden p-2 bg-[#050810]/80">
             <div className="relative rounded-lg overflow-hidden border border-blue-500/20 bg-[#030509]">
               {/* Overlay Glass Badge */}
               <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md border border-blue-500/30 text-xs text-cyan-300 font-mono flex items-center gap-2">
@@ -115,7 +137,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* Core Features Bento Grid */}
-      <section className="py-16 px-4 sm:px-8 max-w-7xl mx-auto">
+      <section className="py-16 px-4 sm:px-8 w-full max-w-full">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <SplitText
             text="Engineered for Academic Mastery"
@@ -135,52 +157,103 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card3D glowColor="blue" onClick={() => setActiveTab('planner')}>
-            <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-cyan-400 mb-4">
-              <CalendarRange className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold text-white">AI Study Plan Generator</h3>
-            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Input subjects, difficulty levels, exam deadlines, and daily available hours. Gemini AI constructs a balanced multi-day timeline.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-medium">
-              <span>Generate Plan</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </div>
-          </Card3D>
+          <BorderGlow
+            glowColor="210 100 60"
+            backgroundColor="#0A1326"
+            colors={['#0070F3', '#3b82f6', '#60a5fa']}
+            borderRadius={20}
+            glowRadius={32}
+            glowIntensity={1.2}
+            edgeSensitivity={25}
+            className="group hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+          >
+            <SpotlightCard
+              spotlightColor="rgba(0, 112, 243, 0.35)"
+              onClick={() => setActiveTab('planner')}
+              className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
+            >
+              <div>
+                <div className="w-10 h-10 rounded-lg bg-[#0070F3]/10 border border-[#0070F3]/30 flex items-center justify-center text-[#0070F3] mb-4">
+                  <CalendarRange className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-[#0070F3] transition-colors">AI Study Plan Generator</h3>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Input subjects, difficulty levels, exam deadlines, and daily available hours. AI Engine constructs a balanced multi-day timeline.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 text-xs text-[#0070F3] font-medium">
+                <span>Generate Plan</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
+          </BorderGlow>
 
-          <Card3D glowColor="cyan" onClick={() => setActiveTab('planner')}>
-            <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
-              <Zap className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold text-white">Adaptive "Adjust My Plan"</h3>
-            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Missed a session or running low on time? Click one button to dynamically redistribute remaining study sessions without falling behind.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-medium">
-              <span>Test Adaptation</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </div>
-          </Card3D>
+          <BorderGlow
+            glowColor="180 90 60"
+            backgroundColor="#0B1622"
+            colors={['#06b6d4', '#38bdf8', '#22d3ee']}
+            borderRadius={20}
+            glowRadius={32}
+            glowIntensity={1.2}
+            edgeSensitivity={25}
+            className="group hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+          >
+            <SpotlightCard
+              spotlightColor="rgba(6, 182, 212, 0.35)"
+              onClick={() => setActiveTab('planner')}
+              className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
+            >
+              <div>
+                <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">Adaptive "Adjust My Plan"</h3>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Missed a session or running low on time? Click one button to dynamically redistribute remaining study sessions without falling behind.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-medium">
+                <span>Test Adaptation</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
+          </BorderGlow>
 
-          <Card3D glowColor="purple" onClick={() => setActiveTab('timer')}>
-            <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-bold text-white">3D Focus Timer Environment</h3>
-            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Pomodoro focus timer with glowing ambient visual effects, white noise ambient sounds, and automatic task progress logging.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-purple-400 font-medium">
-              <span>Launch Timer</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </div>
-          </Card3D>
+          <BorderGlow
+            glowColor="270 90 65"
+            backgroundColor="#140A22"
+            colors={['#a855f7', '#c084fc', '#e879f9']}
+            borderRadius={20}
+            glowRadius={32}
+            glowIntensity={1.2}
+            edgeSensitivity={25}
+            className="group hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+          >
+            <SpotlightCard
+              spotlightColor="rgba(168, 85, 247, 0.35)"
+              onClick={() => setActiveTab('timer')}
+              className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
+            >
+              <div>
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">3D Focus Timer Environment</h3>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Pomodoro focus timer with glowing ambient visual effects, white noise ambient sounds, and automatic task progress logging.
+                </p>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 text-xs text-purple-400 font-medium">
+                <span>Launch Timer</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </SpotlightCard>
+          </BorderGlow>
         </div>
       </section>
 
       {/* Quick Interactive Demo Callout */}
-      <section className="py-12 px-4 sm:px-8 max-w-5xl mx-auto">
+      <section className="py-12 px-4 sm:px-8 w-full max-w-full">
         <div className="rounded-2xl bg-gradient-to-r from-blue-950/40 via-[#0a1228] to-cyan-950/40 border border-blue-500/30 p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
           <div className="space-y-2 text-center md:text-left">
             <h3 className="text-xl font-bold text-white">Ready to transform your study routine?</h3>

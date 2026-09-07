@@ -342,7 +342,11 @@ RESPONSE FORMAT MANDATE:
 - You MUST return a valid JSON object matching the requested JSON schema.
 - ABSOLUTELY NO RAW MARKDOWN HEADERS OR HASHES ('#', '##', '###'). Use bold text (**Title**) for headings.
 - Keep explanation text clean, well-structured, and easy to read.
-- CRITICAL INSTRUCTION FOR VISUAL AIDS & FORMULA SHEETS: Whenever the user asks for a "formula sheet", "formula", "cheat sheet", "equations", "diagram", "concept map", "chart", "graph", or "table", you MUST populate the 'visualAid' object in your JSON output. Include an array of formulas or nodes or table rows. DO NOT leave 'visualAid' empty or undefined when requested!`;
+- CRITICAL INSTRUCTION FOR VISUAL AIDS, DIAGRAMS & FORMULA SHEETS:
+  Whenever the user asks for a "diagram", "concept diagram", "concept map", "mind map", "flowchart", "process map", "cycle", "formula sheet", "formula", "cheat sheet", "equations", "chart", "graph", or "table":
+  You MUST populate the 'visualAid' object in your JSON output!
+  For diagrams: Set 'type': 'diagram', provide a clear 'title', and populate 'diagramNodes' with 4 to 8 sequential, structured nodes with 'id', 'label', 'desc' (detailed 1-2 sentence explanation of this stage), 'step' (integer), and 'category'.
+  DO NOT write ASCII boxes or mermaid code in the text field; always use the structured 'visualAid' object!`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
@@ -363,6 +367,7 @@ RESPONSE FORMAT MANDATE:
                 properties: {
                   type: { type: 'STRING', enum: ['chart', 'table', 'diagram', 'formula'] },
                   title: { type: 'STRING' },
+                  diagramType: { type: 'STRING', enum: ['flowchart', 'mindmap', 'cycle', 'concept', 'hierarchy'] },
                   chartType: { type: 'STRING', enum: ['bar', 'line', 'pie'] },
                   data: {
                     type: 'ARRAY',
@@ -389,7 +394,9 @@ RESPONSE FORMAT MANDATE:
                       properties: {
                         id: { type: 'STRING' },
                         label: { type: 'STRING' },
-                        desc: { type: 'STRING' }
+                        desc: { type: 'STRING' },
+                        step: { type: 'INTEGER' },
+                        category: { type: 'STRING' }
                       }
                     }
                   },
@@ -443,15 +450,23 @@ RESPONSE FORMAT MANDATE:
         visualAid = generateOfflineVisualAid(message);
       }
 
+      // Check if user asked to build or generate an interactive study plan
+      const isPlanBuilderRequested =
+        msgLower.includes('build') ||
+        msgLower.includes('create plan') ||
+        msgLower.includes('make plan') ||
+        msgLower.includes('generate plan') ||
+        msgLower.includes('new plan') ||
+        msgLower.includes('setup plan') ||
+        msgLower.includes('interactive plan') ||
+        (msgLower.includes('study plan') && (msgLower.includes('build') || msgLower.includes('make') || msgLower.includes('create') || msgLower.includes('generate') || msgLower.includes('let') || msgLower.includes('start')));
+
       // Check if user asked to adjust or change their study plan
       const isPlanAdjustment =
         msgLower.includes('adjust') ||
         msgLower.includes('change plan') ||
         msgLower.includes('modify plan') ||
-        msgLower.includes('new plan') ||
         msgLower.includes('update plan') ||
-        msgLower.includes('make a plan') ||
-        msgLower.includes('create plan') ||
         msgLower.includes('re-schedule') ||
         msgLower.includes('reschedule');
 
@@ -463,26 +478,35 @@ RESPONSE FORMAT MANDATE:
       return res.json({
         text: cleanedText || "Here is your study answer.",
         visualAid: visualAid,
-        adjustedPlan: adjustedPlan
+        adjustedPlan: adjustedPlan,
+        interactivePlanBuilder: isPlanBuilderRequested
       });
     } catch (err: any) {
       console.error('Gemini chat error:', err);
       const msgLower = (req.body.message || '').toLowerCase();
+      const isPlanBuilderRequested =
+        msgLower.includes('build') ||
+        msgLower.includes('create plan') ||
+        msgLower.includes('make plan') ||
+        msgLower.includes('generate plan') ||
+        msgLower.includes('new plan') ||
+        msgLower.includes('setup plan') ||
+        msgLower.includes('interactive plan') ||
+        (msgLower.includes('study plan') && (msgLower.includes('build') || msgLower.includes('make') || msgLower.includes('create') || msgLower.includes('generate') || msgLower.includes('let') || msgLower.includes('start')));
+
       const isPlanAdjustment =
         msgLower.includes('adjust') ||
         msgLower.includes('change plan') ||
         msgLower.includes('modify plan') ||
-        msgLower.includes('new plan') ||
         msgLower.includes('update plan') ||
-        msgLower.includes('make a plan') ||
-        msgLower.includes('create plan') ||
         msgLower.includes('re-schedule') ||
         msgLower.includes('reschedule');
 
       return res.json({
         text: getOfflineAssistantResponse(req.body.message, req.body.subjects),
         visualAid: generateOfflineVisualAid(req.body.message),
-        adjustedPlan: isPlanAdjustment ? adjustPlanLocally(req.body.currentPlan || {}, req.body.message) : undefined
+        adjustedPlan: isPlanAdjustment ? adjustPlanLocally(req.body.currentPlan || {}, req.body.message) : undefined,
+        interactivePlanBuilder: isPlanBuilderRequested
       });
     }
   });
@@ -646,16 +670,83 @@ function generateOfflineVisualAid(query: string): any {
     };
   }
 
-  if (q.includes('diagram') || q.includes('flow') || q.includes('process')) {
+  if (q.includes('diagram') || q.includes('flow') || q.includes('process') || q.includes('map') || q.includes('cycle') || q.includes('pipeline')) {
+    if (q.includes('photosynthesis') || q.includes('plant') || q.includes('calvin')) {
+      return {
+        type: 'diagram',
+        title: 'Photosynthesis & Carbon Fixation Pathway',
+        diagramType: 'cycle',
+        diagramNodes: [
+          { id: '1', label: '1. Light Absorption (Thylakoid)', desc: 'Chlorophyll pigments absorb photon energy (680nm/700nm) to excite electrons in Photosystem II & I.', step: 1, category: 'Light Reactions' },
+          { id: '2', label: '2. Photolysis of Water', desc: 'Water (H2O) split into 2H+, 2e-, and Oxygen (O2 byproduct) to replenish electrons in PSII.', step: 2, category: 'Light Reactions' },
+          { id: '3', label: '3. Electron Transport & Chemiosmosis', desc: 'Proton gradient drives ATP synthase to produce ATP and reduces NADP+ to NADPH.', step: 3, category: 'Energy Carriers' },
+          { id: '4', label: '4. Carbon Fixation (Calvin Cycle)', desc: 'RuBisCO enzyme catalyzes fixation of atmospheric CO2 onto 5-carbon RuBP in the Stroma.', step: 4, category: 'Dark Reactions' },
+          { id: '5', label: '5. Reduction to G3P & Glucose Synthesis', desc: 'ATP and NADPH reduce 3-PGA into G3P (triose phosphate), which combines to form high-energy glucose.', step: 5, category: 'Biosynthesis' }
+        ],
+        summary: 'Comprehensive biological pathway detailing both Light-Dependent and Light-Independent (Calvin) stages.'
+      };
+    }
+
+    if (q.includes('cell') || q.includes('mitosis') || q.includes('division')) {
+      return {
+        type: 'diagram',
+        title: 'Eukaryotic Mitotic Cell Division Cycle',
+        diagramType: 'flowchart',
+        diagramNodes: [
+          { id: '1', label: '1. Interphase (G1, S, G2)', desc: 'Cell growth, protein synthesis, and exact semi-conservative DNA replication in the S phase.', step: 1, category: 'Preparation' },
+          { id: '2', label: '2. Prophase & Prometaphase', desc: 'Chromatin condenses into distinct chromosomes; mitotic spindle begins forming and nuclear envelope dissolves.', step: 2, category: 'Condensation' },
+          { id: '3', label: '3. Metaphase', desc: 'Chromosomes line up along the equatorial metaphase plate, attached by kinetochore microtubules.', step: 3, category: 'Alignment' },
+          { id: '4', label: '4. Anaphase', desc: 'Sister chromatids are pulled apart toward opposite spindle poles by shortening kinetochore fibers.', step: 4, category: 'Separation' },
+          { id: '5', label: '5. Telophase & Cytokinesis', desc: 'Nuclear membranes reform around daughter nuclei; contractile actin ring cleaves cell into two identical daughter cells.', step: 5, category: 'Division' }
+        ],
+        summary: 'Step-by-step chromosomal replication and division sequence for somatic cells.'
+      };
+    }
+
+    if (q.includes('machine learning') || q.includes('ai') || q.includes('model') || q.includes('neural')) {
+      return {
+        type: 'diagram',
+        title: 'End-to-End Machine Learning Engineering Pipeline',
+        diagramType: 'flowchart',
+        diagramNodes: [
+          { id: '1', label: '1. Data Ingestion & Cleaning', desc: 'Handle missing values, remove outliers, normalize distributions, and tokenize raw input data.', step: 1, category: 'Data Ops' },
+          { id: '2', label: '2. Feature Engineering & Selection', desc: 'Construct informative feature vectors, apply PCA dimensionality reduction, and split train/val/test partitions.', step: 2, category: 'Feature Ops' },
+          { id: '3', label: '3. Model Architecture & Training', desc: 'Initialize model weights, forward propagation, loss function evaluation, and gradient backpropagation with Adam/SGD.', step: 3, category: 'Training' },
+          { id: '4', label: '4. Hyperparameter Tuning & Validation', desc: 'Execute Bayesian optimization or grid search to maximize F1-score/AUC while preventing overfitting.', step: 4, category: 'Validation' },
+          { id: '5', label: '5. Model Serving & Observability', desc: 'Export serialized ONNX/TensorRT artifacts to low-latency microservices with telemetry and data drift monitoring.', step: 5, category: 'Production' }
+        ],
+        summary: 'Standard industry MLOps pipeline from raw telemetry to deployed inference models.'
+      };
+    }
+
+    if (q.includes('calculus') || q.includes('derivative') || q.includes('integral')) {
+      return {
+        type: 'diagram',
+        title: 'Calculus Function Analysis & Optimization Workflow',
+        diagramType: 'concept',
+        diagramNodes: [
+          { id: '1', label: '1. Domain & Limit Inspection', desc: 'Identify continuous regions, vertical/horizontal asymptotes, and boundary limits as x -> ±∞.', step: 1, category: 'Foundation' },
+          { id: '2', label: '2. First Derivative Test (f\'(x) = 0)', desc: 'Calculate critical numbers to determine intervals of increase/decrease and local extrema.', step: 2, category: 'Differentiation' },
+          { id: '3', label: '3. Second Derivative & Concavity (f\'\'(x))', desc: 'Evaluate inflection points where concavity changes (f\'\'(x) > 0 concave up; f\'\'(x) < 0 concave down).', step: 3, category: 'Curvature' },
+          { id: '4', label: '4. Fundamental Theorem of Calculus', desc: 'Connect derivative rates of change to accumulated area under the curve: ∫[a,b] f(t)dt = F(b) - F(a).', step: 4, category: 'Integration' }
+        ],
+        summary: 'Rigorous conceptual framework connecting differential slope analysis with integral accumulation.'
+      };
+    }
+
+    // Default / General Study & Cognitive Consolidation Loop
     return {
       type: 'diagram',
-      title: 'Active Study & Memory Consolidation Cycle',
+      title: 'Cognitive Memory Consolidation & Concept Mastery Cycle',
+      diagramType: 'cycle',
       diagramNodes: [
-        { id: '1', label: 'Step 1: First Input', desc: 'Read concept & write active summaries' },
-        { id: '2', label: 'Step 2: Spaced Retrieval', desc: 'Test yourself without notes after 24 hrs' },
-        { id: '3', label: 'Step 3: Feynman Explanation', desc: 'Explain concept aloud in simple terms' }
+        { id: '1', label: '1. Primary Encoding & Priming', desc: 'Read core theory, extract key definitions, and sketch mental models.', step: 1, category: 'Input' },
+        { id: '2', label: '2. Active Retrieval Practice', desc: 'Force brain to recall concepts from scratch without looking at answers or notes.', step: 2, category: 'Testing' },
+        { id: '3', label: '3. Feynman Technique Simplification', desc: 'Explain the mechanism aloud in plain conversational English as if teaching a beginner.', step: 3, category: 'Synthesis' },
+        { id: '4', label: '4. Interleaved Problem Application', desc: 'Mix diverse problem sets from different chapters to strengthen cognitive discrimination.', step: 4, category: 'Application' },
+        { id: '5', label: '5. Spaced Repetition Reinforcement', desc: 'Re-test at expanding intervals (1 day, 3 days, 7 days, 2 weeks) to cement long-term memory.', step: 5, category: 'Consolidation' }
       ],
-      summary: 'Proven cognitive loop for long-term memory retention.'
+      summary: 'Scientifically validated neuro-cognitive framework for permanent conceptual retention.'
     };
   }
 

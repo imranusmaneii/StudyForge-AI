@@ -8,11 +8,11 @@ interface SpotlightCardProps {
   onClick?: () => void;
 }
 
-export const SpotlightCard: React.FC<SpotlightCardProps> = ({
+const SpotlightCard: React.FC<SpotlightCardProps> = ({
   children,
   className = '',
   spotlightColor = 'rgba(255, 255, 255, 0.25)',
-  onClick
+  onClick,
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
 
@@ -34,9 +34,7 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
       onClick={onClick}
       className={`card-spotlight ${className}`}
     >
-      <div className="relative z-10 h-full flex flex-col justify-between space-y-3">
-        {children}
-      </div>
+      {children}
     </div>
   );
 };

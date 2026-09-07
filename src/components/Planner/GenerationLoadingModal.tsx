@@ -68,7 +68,7 @@ export const GenerationLoadingModal: React.FC<GenerationLoadingModalProps> = ({
 
           <div>
             <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-cyan-400 font-mono border border-blue-500/30">
-              GEMINI 3.6 FLASH REASONING
+              AI STUDY ENGINE REASONING
             </span>
             <h3 className="text-xl font-bold text-white mt-3 min-h-[30px]">
               {steps[currentStepIndex].title}

@@ -1,10 +1,13 @@
 .card-spotlight {
   position: relative;
-  border-radius: 1rem;
+  border-radius: 1.5rem;
+  border: 1px solid #222;
+  background-color: #111;
+  padding: 2rem;
   overflow: hidden;
   --mouse-x: 50%;
   --mouse-y: 50%;
-  --spotlight-color: rgba(255, 255, 255, 0.15);
+  --spotlight-color: rgba(255, 255, 255, 0.05);
 }
 
 .card-spotlight::before {
@@ -16,12 +19,11 @@
   bottom: 0;
   background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), var(--spotlight-color), transparent 80%);
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.5s ease;
   pointer-events: none;
-  z-index: 1;
 }
 
 .card-spotlight:hover::before,
 .card-spotlight:focus-within::before {
-  opacity: 1;
+  opacity: 0.6;
 }

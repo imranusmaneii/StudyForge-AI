@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   return (
-    <header className="sticky top-0 z-30 bg-[#030507]/95 backdrop-blur-xl border-b border-white/5 px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2.5">
+    <header className="sticky top-0 z-30 bg-[#030507]/95 backdrop-blur-xl border-b border-white/5 px-4 sm:px-8 lg:px-10 py-3 flex items-center justify-between gap-2.5 w-full">
       {/* Left: Hamburger trigger + Logo + Title */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {/* Hamburger Menu Trigger Button (Visible on ALL screens) */}

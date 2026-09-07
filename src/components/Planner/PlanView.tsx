@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StudyPlan, ActiveTab } from '../../types';
-import { Card3D } from '../3d/Card3D';
+import BorderGlow from '../BorderGlow';
+import SpotlightCard from '../SpotlightCard';
 import { formatTimeRange, formatTime12h, calculateEndTime } from '../../lib/timeUtils';
 import {
   Sparkles,
@@ -87,7 +88,7 @@ export const PlanView: React.FC<PlanViewProps> = ({
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-16 p-4 sm:p-6 lg:p-8 w-full max-w-full">
       {/* Top Banner & Action Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-blue-950/40 via-[#0a1228] to-cyan-950/40 border border-blue-500/20">
         <div>
@@ -226,81 +227,101 @@ export const PlanView: React.FC<PlanViewProps> = ({
               low: 'bg-slate-700/20 text-slate-400 border-slate-700/30'
             }[session.priority] || 'bg-blue-500/20 text-cyan-300 border-blue-500/30';
 
+            const glowColor = isBreak ? '270 90 65' : '210 100 60';
+            const bgColor = isBreak ? '#140A22' : '#0A1326';
+            const colors = isBreak
+              ? ['#a855f7', '#c084fc', '#e879f9']
+              : ['#0070F3', '#3b82f6', '#60a5fa'];
+            const spotlightColor = isBreak
+              ? 'rgba(168, 85, 247, 0.35)'
+              : 'rgba(0, 112, 243, 0.35)';
+
             return (
-              <Card3D
+              <BorderGlow
                 key={session.id}
-                glowColor={isBreak ? 'purple' : 'blue'}
+                glowColor={glowColor}
+                backgroundColor={bgColor}
+                colors={colors}
+                borderRadius={16}
+                glowRadius={28}
+                glowIntensity={1.1}
+                edgeSensitivity={25}
                 className={`transition-all duration-300 ${
-                  session.completed ? 'opacity-70 bg-blue-950/10' : ''
+                  session.completed ? 'opacity-70' : ''
                 }`}
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  {/* Left details */}
-                  <div className="flex items-start gap-4">
-                    {/* Checkbox */}
-                    <button
-                      onClick={() => onToggleSessionComplete(activeDayIdx, session.id)}
-                      className={`mt-1 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
-                        session.completed
-                          ? 'bg-cyan-500 border-cyan-400 text-black shadow-[0_0_12px_rgba(6,182,212,0.8)]'
-                          : 'border-slate-600 hover:border-cyan-400 text-transparent'
-                      }`}
-                    >
-                      <CheckCircle2 className="w-4 h-4 fill-current" />
-                    </button>
+                <SpotlightCard
+                  spotlightColor={spotlightColor}
+                  className="bg-transparent border-none p-5 sm:p-6 rounded-[inherit]"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    {/* Left details */}
+                    <div className="flex items-start gap-4">
+                      {/* Checkbox */}
+                      <button
+                        onClick={() => onToggleSessionComplete(activeDayIdx, session.id)}
+                        className={`mt-1 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
+                          session.completed
+                            ? 'bg-cyan-500 border-cyan-400 text-black shadow-[0_0_12px_rgba(6,182,212,0.8)]'
+                            : 'border-slate-600 hover:border-cyan-400 text-transparent'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-4 h-4 fill-current" />
+                      </button>
 
-                    {/* Time pill with quick edit trigger */}
-                    <div className="group relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#070d1e] border border-blue-900/40 text-xs font-mono text-cyan-400 shrink-0">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{formatTimeRange(session.startTime, session.endTime, session.durationMinutes)}</span>
-                      {onUpdateSessionTime && (
-                        <button
-                          onClick={() => setEditingSession({
-                            id: session.id,
-                            startTime: session.startTime || '09:00',
-                            duration: session.durationMinutes || 45,
-                            subjectName: session.subjectName
-                          })}
-                          title="Change Session Time"
-                          className="ml-1 p-0.5 rounded hover:bg-blue-800/40 text-slate-400 hover:text-cyan-300 transition-colors"
-                        >
-                          <Edit2 className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Subject & Topic */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: session.subjectColor || '#3b82f6' }} />
-                        <h3 className={`text-base font-bold ${session.completed ? 'line-through text-slate-400' : 'text-white'}`}>
-                          {session.subjectName}
-                        </h3>
-                        <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase border ${priorityBadge}`}>
-                          {session.priority} PRIORITY
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase bg-blue-950 text-cyan-300 border border-blue-500/30">
-                          {session.type}
-                        </span>
+                      {/* Time pill with quick edit trigger */}
+                      <div className="group relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#070d1e] border border-blue-900/40 text-xs font-mono text-cyan-400 shrink-0">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{formatTimeRange(session.startTime, session.endTime, session.durationMinutes)}</span>
+                        {onUpdateSessionTime && (
+                          <button
+                            onClick={() => setEditingSession({
+                              id: session.id,
+                              startTime: session.startTime || '09:00',
+                              duration: session.durationMinutes || 45,
+                              subjectName: session.subjectName
+                            })}
+                            title="Change Session Time"
+                            className="ml-1 p-0.5 rounded hover:bg-blue-800/40 text-slate-400 hover:text-cyan-300 transition-colors"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
-                      <p className="text-xs text-slate-300">{session.topic}</p>
+
+                      {/* Subject & Topic */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: session.subjectColor || '#3b82f6' }} />
+                          <h3 className={`text-base font-bold ${session.completed ? 'line-through text-slate-400' : 'text-white'}`}>
+                            {session.subjectName}
+                          </h3>
+                          <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase border ${priorityBadge}`}>
+                            {session.priority} PRIORITY
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase bg-blue-950 text-cyan-300 border border-blue-500/30">
+                            {session.type}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300">{session.topic}</p>
+                      </div>
+                    </div>
+
+                    {/* Right duration & Launch Focus */}
+                    <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 border-blue-900/20 pt-3 md:pt-0">
+                      <span className="text-xs text-slate-400 font-mono font-semibold">{session.durationMinutes} Minutes</span>
+
+                      <button
+                        onClick={() => setActiveTab('timer')}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:scale-[1.02] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-white" />
+                        <span>Start Focus</span>
+                      </button>
                     </div>
                   </div>
-
-                  {/* Right duration & Launch Focus */}
-                  <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 border-blue-900/20 pt-3 md:pt-0">
-                    <span className="text-xs text-slate-400 font-mono font-semibold">{session.durationMinutes} Minutes</span>
-
-                    <button
-                      onClick={() => setActiveTab('timer')}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:scale-[1.02] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-white" />
-                      <span>Start Focus</span>
-                    </button>
-                  </div>
-                </div>
-              </Card3D>
+                </SpotlightCard>
+              </BorderGlow>
             );
           })
         )}

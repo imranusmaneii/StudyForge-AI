@@ -71,7 +71,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const formattedStudyTime = `${hours}h ${mins}m`;
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-16 p-4 sm:p-6 lg:p-8 w-full max-w-full">
       {/* Top Greeting & Purpose Explanation Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-[#080B12] border border-white/5 shadow-[0_0_30px_rgba(0,112,243,0.08)] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#0070F3] opacity-10 blur-[90px] rounded-full pointer-events-none" />
@@ -340,7 +340,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         className="px-3 py-1.5 rounded-xl bg-[#0070F3]/10 hover:bg-[#0070F3]/20 border border-[#0070F3]/30 text-[#0070F3] text-xs font-semibold flex items-center gap-1 transition-all"
                       >
                         <Play className="w-3 h-3 fill-[#0070F3] text-[#0070F3]" />
-                        <span>Focus</span>
+                        <span>Start</span>
                       </button>
                     </div>
                   </div>

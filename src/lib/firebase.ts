@@ -3,6 +3,8 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut as firebaseSignOut, 
@@ -21,6 +23,7 @@ import firebaseConfig from '../../firebase-applet-config.json';
 import { User, Subject, StudyPlan, ProgressStats } from '../types';
 
 // Initialize Firebase App
+console.log('[Firebase Init] Initializing Firebase app with project ID:', firebaseConfig.projectId);
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Auth & Firestore
@@ -34,6 +37,30 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
+// Check if app is rendered inside an iframe
+export function isEmbeddedIframe(): boolean {
+  try {
+    return typeof window !== 'undefined' && window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+}
+
+// Check redirect result on load
+getRedirectResult(auth)
+  .then(async (result) => {
+    if (result) {
+      console.log('[Firebase OAuth Callback] Successfully received redirect result:', result.user.email);
+      const user = mapFirebaseUser(result.user);
+      await setDoc(doc(db, 'users', user.id), user, { merge: true });
+    } else {
+      console.log('[Firebase OAuth Callback] No pending redirect auth result found.');
+    }
+  })
+  .catch((err) => {
+    console.error('[Firebase OAuth Callback Error] Error retrieving redirect result:', err);
+  });
+
 // Helper: Convert FirebaseUser to our App User type
 export function mapFirebaseUser(fbUser: FirebaseUser): User {
   return {
@@ -46,25 +73,46 @@ export function mapFirebaseUser(fbUser: FirebaseUser): User {
   };
 }
 
-// Google Sign-In with popup (and clear error handling)
+// Google Sign-In with popup & detailed diagnostics
 export async function signInWithGoogle(): Promise<User> {
+  const inIframe = isEmbeddedIframe();
+  console.log('[Firebase Google Auth] Initiating Google Sign-In flow...', {
+    currentUrl: typeof window !== 'undefined' ? window.location.href : '',
+    inIframe,
+    authDomain: firebaseConfig.authDomain,
+    projectId: firebaseConfig.projectId
+  });
+
   try {
+    console.log('[Firebase Google Auth] Triggering signInWithPopup...');
     const result = await signInWithPopup(auth, googleProvider);
+    console.log('[Firebase Google Auth] Popup login successful! Received user:', result.user.email, result.user.uid);
+    
     const fbUser = result.user;
     const user = mapFirebaseUser(fbUser);
     
     // Save/update user profile doc in Firestore
+    console.log('[Firebase Google Auth] Persisting user profile to Firestore users collection...');
     await setDoc(doc(db, 'users', user.id), user, { merge: true });
+    console.log('[Firebase Google Auth] User document updated successfully in Firestore.');
     
     return user;
   } catch (error: any) {
-    console.error('Google Sign-In Error:', error);
-    if (error.code === 'auth/popup-blocked') {
-      throw new Error('Sign-in popup was blocked by browser. Please allow popups or try again.');
+    console.error('[Firebase Google Auth Error] Full error object:', error);
+    console.error('[Firebase Google Auth Error] Error code:', error.code, 'Error message:', error.message);
+
+    if (error.code === 'auth/popup-blocked' || error.message?.includes('popup') || (inIframe && error.code === 'auth/internal-error')) {
+      throw new Error(
+        inIframe
+          ? 'Google sign-in popup was blocked by browser iframe security restrictions. Please click "Open App in New Tab" or use Instant Demo / Email sign-in.'
+          : 'Sign-in popup was blocked by your browser. Please allow popups for this site and try again.'
+      );
     } else if (error.code === 'auth/popup-closed-by-user') {
-      throw new Error('Sign-in cancelled by user.');
+      throw new Error('Sign-in popup was closed before completing authentication. Please try again.');
     } else if (error.code === 'auth/cancelled-popup-request') {
-      throw new Error('Sign-in request was cancelled.');
+      throw new Error('Sign-in request was cancelled by a newer request.');
+    } else if (error.code === 'auth/unauthorized-domain') {
+      throw new Error(`Domain (${typeof window !== 'undefined' ? window.location.hostname : ''}) is not authorized in Firebase Auth. Please add it in Firebase Console or use Email / Demo sign-in.`);
     }
     throw new Error(error.message || 'Failed to sign in with Google.');
   }
@@ -96,24 +144,33 @@ export async function logoutFirebase(): Promise<void> {
 
 // Firestore User Study Data Sync (Subjects, Study Plan, Progress Stats)
 export async function getUserStudyData(userId: string) {
+  if (!userId || !auth.currentUser || auth.currentUser.uid !== userId) {
+    return null;
+  }
   try {
     const userDocRef = doc(db, 'user_data', userId);
     const snapshot = await getDoc(userDocRef);
     if (snapshot.exists()) {
       return snapshot.data();
     }
-  } catch (err) {
-    console.error('Error fetching user study data:', err);
+  } catch (err: any) {
+    if (err?.code !== 'permission-denied') {
+      console.warn('Could not fetch user study data from Firestore:', err);
+    }
   }
   return null;
 }
 
 export async function saveUserStudyData(userId: string, data: { subjects?: Subject[]; studyPlan?: StudyPlan; progress?: ProgressStats }) {
-  if (!userId) return;
+  if (!userId || !auth.currentUser || auth.currentUser.uid !== userId) {
+    return;
+  }
   try {
     const userDocRef = doc(db, 'user_data', userId);
     await setDoc(userDocRef, { userId, ...data, updatedAt: new Date().toISOString() }, { merge: true });
-  } catch (err) {
-    console.error('Error saving user study data:', err);
+  } catch (err: any) {
+    if (err?.code !== 'permission-denied') {
+      console.warn('Could not sync user study data to Firestore:', err);
+    }
   }
 }

@@ -460,6 +460,7 @@ export default function App() {
         sender: 'assistant',
         text: data.text || 'I am ready to help you optimize your study schedule!',
         visualAid: data.visualAid,
+        interactivePlanBuilder: data.interactivePlanBuilder,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -510,7 +511,7 @@ export default function App() {
           onToggleHamburger={() => setIsHamburgerOpen((prev) => !prev)}
         />
 
-        <main className="flex-1 p-3 sm:p-8 max-w-7xl w-full mx-auto pb-24 sm:pb-8">
+        <main className="flex-1 p-0 w-full max-w-full pb-16 sm:pb-6">
           {activeTab === 'landing' && (
             <LandingPage
               onStartPlanner={handleOpenCreateModal}
@@ -581,6 +582,13 @@ export default function App() {
               subjects={subjects}
               studyPlan={studyPlan}
               progress={progress}
+              onSavePlan={(newPlan, updatedSubjs) => {
+                setStudyPlan(newPlan);
+                if (updatedSubjs && updatedSubjs.length > 0) {
+                  setSubjects(updatedSubjs);
+                }
+                addToast('Alex created and synced your live study plan!', 'success');
+              }}
             />
           )}
         </main>

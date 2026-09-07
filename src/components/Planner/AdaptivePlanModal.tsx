@@ -104,7 +104,7 @@ export const AdaptivePlanModal: React.FC<AdaptivePlanModalProps> = ({
             {isAdjusting ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin text-cyan-300" />
-                <span>Re-balancing Schedule with Gemini...</span>
+                <span>Re-balancing Schedule with AI...</span>
               </>
             ) : (
               <>
