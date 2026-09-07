@@ -58,13 +58,13 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand Logo alongside STUDYFORGE AI (Visible on ALL screens) */}
         <div
           onClick={() => setActiveTab('landing')}
-          className="flex items-center gap-2 cursor-pointer group shrink-0"
+          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
         >
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-[#1E3A8A] via-[#0F285E] to-[#0A1938] p-[1px] shadow-[0_0_12px_rgba(30,58,138,0.5)] border border-[#3B82F6]/40 group-hover:border-[#60A5FA] group-hover:shadow-[0_0_16px_rgba(59,130,246,0.6)] transition-all shrink-0">
-            <div className="w-full h-full bg-[#050A18] rounded-[7px] flex items-center justify-center text-white">
-              <GraduationCap className="w-4 h-4 text-[#60A5FA] group-hover:text-white transition-colors" />
-            </div>
-          </div>
+          <img 
+            src="/favicon.svg" 
+            alt="Graduation Cap" 
+            className="w-7 h-7 object-contain group-hover:scale-110 transition-transform shrink-0 drop-shadow-[0_2px_8px_rgba(30,58,138,0.5)]" 
+          />
           <div className="flex items-center gap-1.5">
             <span className="font-extrabold text-sm sm:text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-100 to-gray-400">
               STUDYFORGE

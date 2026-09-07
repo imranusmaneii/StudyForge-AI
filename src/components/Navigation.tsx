@@ -81,11 +81,11 @@ export const Navigation: React.FC<NavigationProps> = ({
                   onClick={() => handleSelectTab('landing')}
                   className="flex items-center gap-3 cursor-pointer group"
                 >
-                  <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-[#1E3A8A] via-[#0F285E] to-[#0A1938] p-[1px] shadow-[0_0_15px_rgba(30,58,138,0.5)] border border-[#3B82F6]/40 group-hover:border-[#60A5FA] group-hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] transition-all shrink-0">
-                    <div className="w-full h-full bg-[#050A18] rounded-[7px] flex items-center justify-center text-white">
-                      <GraduationCap className="w-5 h-5 text-[#60A5FA] group-hover:text-white transition-colors" />
-                    </div>
-                  </div>
+                  <img 
+                    src="/favicon.svg" 
+                    alt="Graduation Cap" 
+                    className="w-9 h-9 object-contain group-hover:scale-110 transition-transform shrink-0 drop-shadow-[0_2px_10px_rgba(30,58,138,0.6)]" 
+                  />
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="font-extrabold text-base tracking-tight text-white">STUDYFORGE</span>
