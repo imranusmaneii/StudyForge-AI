@@ -511,6 +511,13 @@ RESPONSE FORMAT MANDATE:
     }
   });
 
+  // Favicon delivery with zero-cache headers to ensure tab icon updates instantly
+  app.get(['/favicon.ico', '/favicon.svg'], (req, res) => {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.sendFile(path.join(process.cwd(), 'public', 'favicon.svg'));
+  });
+
   // Vite Middleware for development mode
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
