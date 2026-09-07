@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Subject, LearningGoal } from '../../types';
 import { Sparkles, X, Plus, Trash2, Calendar, Clock, Target, Check } from 'lucide-react';
+import { formatTime12h } from '../../lib/timeUtils';
 
 interface PlannerFormModalProps {
   isOpen: boolean;
@@ -240,7 +241,7 @@ export const PlannerFormModal: React.FC<PlannerFormModalProps> = ({
             <div className="pt-2 border-t border-blue-900/20">
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
                 <span>Daily Study Schedule Start Time</span>
-                <span className="text-cyan-400 font-mono text-xs font-semibold">{preferredStartTime}</span>
+                <span className="text-cyan-400 font-mono text-xs font-semibold">{formatTime12h(preferredStartTime)}</span>
               </label>
 
               <div className="flex flex-col sm:flex-row items-center gap-3">

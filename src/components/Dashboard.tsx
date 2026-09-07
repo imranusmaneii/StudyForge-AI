@@ -2,7 +2,6 @@ import React from 'react';
 import { ActiveTab, ProgressStats, StudyPlan, Subject, User } from '../types';
 import alexAvatar from '../assets/images/alex_avatar_1785976615133.jpg';
 import { Card3D } from './3d/Card3D';
-import { QuickStartGuide } from './QuickStartGuide';
 import { formatTimeRange } from '../lib/timeUtils';
 import {
   Sparkles,
@@ -27,6 +26,7 @@ interface DashboardProps {
   onToggleSessionComplete: (dayIdx: number, sessionId: string) => void;
   onOpenCreateModal: () => void;
   onOpenAdjustModal: () => void;
+  onStartFocusSession?: (session: { subjectName?: string; durationMinutes?: number; topic?: string }) => void;
   currentUser?: User | null;
 }
 
@@ -38,6 +38,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onToggleSessionComplete,
   onOpenCreateModal,
   onOpenAdjustModal,
+  onStartFocusSession,
   currentUser
 }) => {
   const getGreeting = () => {
@@ -64,11 +65,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
     ? Math.max(0, Math.ceil((new Date(nearestExam.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : null;
 
-  // Total study minutes today formatted
+  // Total study minutes today formatted & calculated dynamically from timetable
+  const todayPlannedMinutes = today?.totalMinutes || todaySessions.reduce((acc, s) => acc + s.durationMinutes, 0) || progress.todayStudyMinutes || 180;
   const totalMins = todaySessions.reduce((acc, s) => acc + (s.completed ? s.durationMinutes : 0), 0);
   const hours = Math.floor(totalMins / 60);
   const mins = totalMins % 60;
   const formattedStudyTime = `${hours}h ${mins}m`;
+
+  const plannedHours = Math.floor(todayPlannedMinutes / 60);
+  const plannedRemainingMins = todayPlannedMinutes % 60;
+  const formattedPlannedTime = plannedHours > 0 
+    ? `${plannedHours}h${plannedRemainingMins > 0 ? ` ${plannedRemainingMins}m` : ''}`
+    : `${plannedRemainingMins}m`;
 
   return (
     <div className="space-y-8 pb-16 p-4 sm:p-6 lg:p-8 w-full max-w-full">
@@ -108,9 +116,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Onboarding Quick Start Guide */}
-      <QuickStartGuide setActiveTab={setActiveTab} onOpenCreateModal={onOpenCreateModal} />
 
       {/* Metrics Row (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -179,12 +184,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
           <div className="mt-4">
             <p className="text-3xl font-extrabold text-white font-mono tracking-tight">{formattedStudyTime}</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">Logged today ({progress.todayStudyMinutes}m planned)</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">Logged today ({formattedPlannedTime} planned)</p>
           </div>
           <div className="mt-3 w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, (totalMins / (progress.todayStudyMinutes || 1)) * 100)}%` }}
+              style={{ width: `${Math.min(100, Math.round((totalMins / (todayPlannedMinutes || 1)) * 100))}%` }}
             />
           </div>
           <p className="text-[10px] text-slate-500 mt-2 italic border-t border-white/5 pt-1.5">
@@ -336,7 +341,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="mt-3 sm:mt-0 flex items-center gap-3 self-end sm:self-center">
                       <span className="text-xs text-gray-400 font-mono">{session.durationMinutes} min</span>
                       <button
-                        onClick={() => setActiveTab('timer')}
+                        onClick={() => {
+                          if (onStartFocusSession) {
+                            onStartFocusSession({
+                              subjectName: session.subjectName,
+                              durationMinutes: session.durationMinutes,
+                              topic: session.topic
+                            });
+                          } else {
+                            setActiveTab('timer');
+                          }
+                        }}
                         className="px-3 py-1.5 rounded-xl bg-[#0070F3]/10 hover:bg-[#0070F3]/20 border border-[#0070F3]/30 text-[#0070F3] text-xs font-semibold flex items-center gap-1 transition-all"
                       >
                         <Play className="w-3 h-3 fill-[#0070F3] text-[#0070F3]" />

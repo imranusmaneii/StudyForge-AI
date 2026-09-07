@@ -93,6 +93,18 @@ export default function App() {
   // Temporary container for newly generated plan during step animation
   const [pendingPlan, setPendingPlan] = useState<StudyPlan | null>(null);
 
+  // Active Focus Session passed from dashboard/planner to timer
+  const [activeFocusSession, setActiveFocusSession] = useState<{
+    subjectName?: string;
+    durationMinutes?: number;
+    topic?: string;
+  } | null>(null);
+
+  const handleStartFocusSession = (session: { subjectName?: string; durationMinutes?: number; topic?: string }) => {
+    setActiveFocusSession(session);
+    setActiveTab('timer');
+  };
+
   // Toast System
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -286,11 +298,12 @@ export default function App() {
       });
       const data = await response.json();
 
+      let planToSet: StudyPlan;
       if (data && data.plan) {
-        setStudyPlan(data.plan);
+        planToSet = data.plan;
       } else {
         const startHStr = formData.preferredStartTime || '09:00';
-        const fallbackPlan: StudyPlan = {
+        planToSet = {
           id: `plan-fb-${Date.now()}`,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -320,8 +333,17 @@ export default function App() {
           ],
           aiReasoning: 'Generated intelligent study plan optimized for your selected subjects and time constraints.'
         };
-        setStudyPlan(fallbackPlan);
       }
+      setStudyPlan(planToSet);
+      const day0 = planToSet.days?.[0];
+      const day0Mins = day0?.totalMinutes || day0?.sessions?.reduce((acc, s) => acc + s.durationMinutes, 0) || 180;
+      setProgress((prev) => ({
+        ...prev,
+        todayStudyMinutes: day0Mins,
+        todayTotalTasks: day0?.sessions?.length || prev.todayTotalTasks,
+        todayCompletedTasks: 0,
+        todayProgressPercent: 0
+      }));
     } catch (err) {
       console.error('Plan generation failed:', err);
       const startHStr = formData.preferredStartTime || '09:00';
@@ -529,6 +551,7 @@ export default function App() {
               onToggleSessionComplete={handleToggleSessionComplete}
               onOpenCreateModal={() => setIsPlannerFormOpen(true)}
               onOpenAdjustModal={() => setIsAdjustModalOpen(true)}
+              onStartFocusSession={handleStartFocusSession}
               currentUser={currentUser}
             />
           )}
@@ -572,6 +595,7 @@ export default function App() {
           {activeTab === 'timer' && (
             <FocusTimerView
               onLogStudyMinutes={handleLogStudyMinutes}
+              activeSession={activeFocusSession}
             />
           )}
 

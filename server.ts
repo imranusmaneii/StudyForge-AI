@@ -40,9 +40,14 @@ async function startServer() {
       }
 
       let baseStartMins = 9 * 60; // Default 09:00 AM
-      if (preferredStartTime && typeof preferredStartTime === 'string' && preferredStartTime.includes(':')) {
-        const [ph, pm] = preferredStartTime.split(':').map(n => parseInt(n, 10) || 0);
-        baseStartMins = (ph % 24) * 60 + (pm % 60);
+      if (preferredStartTime && typeof preferredStartTime === 'string') {
+        const cleanPref = preferredStartTime.replace(/[_.-]/g, ':').replace(/[^\d:]/g, '').trim();
+        const [phStr, pmStr] = cleanPref.split(':');
+        const ph = parseInt(phStr, 10);
+        const pm = parseInt(pmStr, 10) || 0;
+        if (!isNaN(ph)) {
+          baseStartMins = (ph % 24) * 60 + (pm % 60);
+        }
       }
 
       const apiKey = process.env.GEMINI_API_KEY;
@@ -260,6 +265,14 @@ Return JSON matching the schema.`;
           days: plan.days.map((oldDay: any, dIdx: number) => {
             const aiDay = parsed.days[dIdx] || oldDay;
             let currentMinutes = 9 * 60;
+            const existingFirstTime = oldDay.sessions?.[0]?.startTime;
+            if (existingFirstTime && typeof existingFirstTime === 'string') {
+              const cleanFirst = existingFirstTime.replace(/[_.-]/g, ':').replace(/[^\d:]/g, '');
+              const [fh, fm] = cleanFirst.split(':').map((n: string) => parseInt(n, 10) || 0);
+              if (!isNaN(fh)) {
+                currentMinutes = (fh % 24) * 60 + ((fm || 0) % 60);
+              }
+            }
             const updatedSessions = aiDay.sessions.map((s: any, sIdx: number) => {
               const matchedSubject = (subjects || []).find((sub: any) => sub.name.toLowerCase() === (s.subjectName || '').toLowerCase());
               const startH = (Math.floor(currentMinutes / 60) % 24).toString().padStart(2, '0');
@@ -544,9 +557,14 @@ function generateLocalFallbackPlan(subjects: any[], availableHours: number, stud
   const daysList = ['Today (Day 1)', 'Tomorrow (Day 2)', 'Day 3'];
 
   let baseStartMins = 9 * 60;
-  if (preferredStartTime && typeof preferredStartTime === 'string' && preferredStartTime.includes(':')) {
-    const [ph, pm] = preferredStartTime.split(':').map(n => parseInt(n, 10) || 0);
-    baseStartMins = (ph % 24) * 60 + (pm % 60);
+  if (preferredStartTime && typeof preferredStartTime === 'string') {
+    const cleanPref = preferredStartTime.replace(/[_.-]/g, ':').replace(/[^\d:]/g, '').trim();
+    const [phStr, pmStr] = cleanPref.split(':');
+    const ph = parseInt(phStr, 10);
+    const pm = parseInt(pmStr, 10) || 0;
+    if (!isNaN(ph)) {
+      baseStartMins = (ph % 24) * 60 + (pm % 60);
+    }
   }
 
   // Sort subjects by urgency / difficulty

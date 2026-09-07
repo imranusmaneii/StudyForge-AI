@@ -8,16 +8,31 @@ import { unlockAudio, playCompletionChime } from '../../lib/audioManager';
 
 interface FocusTimerViewProps {
   onLogStudyMinutes: (minutes: number) => void;
+  activeSession?: {
+    subjectName?: string;
+    durationMinutes?: number;
+    topic?: string;
+  } | null;
 }
 
-export const FocusTimerView: React.FC<FocusTimerViewProps> = ({ onLogStudyMinutes }) => {
-  const [selectedMinutes, setSelectedMinutes] = useState<number>(25);
-  const [timeLeft, setTimeLeft] = useState<number>(25 * 60);
+export const FocusTimerView: React.FC<FocusTimerViewProps> = ({ onLogStudyMinutes, activeSession }) => {
+  const [selectedMinutes, setSelectedMinutes] = useState<number>(() => activeSession?.durationMinutes || 25);
+  const [timeLeft, setTimeLeft] = useState<number>(() => (activeSession?.durationMinutes || 25) * 60);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState<boolean>(false);
 
-  const initialTimeRef = useRef<number>(25 * 60);
+  const initialTimeRef = useRef<number>((activeSession?.durationMinutes || 25) * 60);
+
+  useEffect(() => {
+    if (activeSession?.durationMinutes) {
+      const mins = activeSession.durationMinutes;
+      setSelectedMinutes(mins);
+      setTimeLeft(mins * 60);
+      initialTimeRef.current = mins * 60;
+      setIsRunning(false);
+    }
+  }, [activeSession]);
 
   useEffect(() => {
     let timer: any;
@@ -103,6 +118,13 @@ export const FocusTimerView: React.FC<FocusTimerViewProps> = ({ onLogStudyMinute
           </div>
 
           <div className="relative z-10 space-y-6 w-full">
+            {activeSession && (
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-950/80 border border-blue-500/40 text-cyan-300 text-xs font-mono shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Scheduled: <strong>{activeSession.subjectName}</strong> {activeSession.topic ? `— ${activeSession.topic}` : `(${activeSession.durationMinutes}m block)`}</span>
+              </div>
+            )}
+
             {/* Duration Presets & Custom Input Bar */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-black/60 border border-blue-900/40">

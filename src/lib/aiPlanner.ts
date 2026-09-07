@@ -8,6 +8,7 @@ export function generateStudyPlan(
     sessionLengthMinutes: number;
     goal: LearningGoal;
     studyDays?: string[];
+    preferredStartTime?: string;
   }
 ): StudyPlan {
   const daysOfWeek = config.studyDays || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -58,7 +59,8 @@ export function generateStudyPlan(
       });
     }
 
-    const resequenced = resequenceDaySessions(daySessions, '09:00');
+    const startStr = config.preferredStartTime || '09:00';
+    const resequenced = resequenceDaySessions(daySessions, startStr);
 
     return {
       dayName: dayIndex === 0 ? 'Today' : dayIndex === 1 ? 'Tomorrow' : dayName,

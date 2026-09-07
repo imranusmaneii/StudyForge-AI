@@ -6,7 +6,22 @@ import SpotlightCard from './SpotlightCard';
 import BorderGlow from './BorderGlow';
 import SplitText from './SplitText';
 import StrokeText from './StrokeText';
-import { Sparkles, CalendarRange, Zap, ShieldCheck, Flame, ArrowRight, Play, CheckCircle2, Bot, BookOpen } from 'lucide-react';
+import {
+  Sparkles,
+  CalendarRange,
+  Zap,
+  ShieldCheck,
+  Flame,
+  ArrowRight,
+  Play,
+  CheckCircle2,
+  Bot,
+  BookOpen,
+  Clock,
+  Sliders,
+  CheckSquare,
+  TrendingUp
+} from 'lucide-react';
 
 interface LandingPageProps {
   onStartPlanner: () => void;
@@ -40,9 +55,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               strokeColor="#FFFFFF"
               fillColor="#FFFFFF"
               strokeWidth={1.5}
-              drawDuration={1.4}
-              fillDelay={0.1}
-              stagger={0.04}
+              drawDuration={0.65}
+              fillDelay={0.06}
+              stagger={0.015}
               ease="power2.out"
               trigger="mount"
               fillMode="wipe"
@@ -56,9 +71,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               strokeColor="#FFFFFF"
               fillColor="#FFFFFF"
               strokeWidth={1.5}
-              drawDuration={1.6}
-              fillDelay={0.25}
-              stagger={0.03}
+              drawDuration={0.7}
+              fillDelay={0.08}
+              stagger={0.015}
               ease="power2.out"
               trigger="mount"
               fillMode="wipe"
@@ -136,119 +151,236 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* Core Features Bento Grid */}
+      {/* Engineered for Academic Mastery — Quick Start Guide & Workflow */}
       <section className="py-16 px-4 sm:px-8 w-full max-w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/60 border border-blue-500/30 text-cyan-400 text-xs font-mono mb-3">
+            <Sparkles className="w-3 h-3" />
+            <span>QUICK START GUIDE & SYSTEM ARCHITECTURE</span>
+          </div>
           <SplitText
             text="Engineered for Academic Mastery"
             className="text-2xl sm:text-3xl font-bold text-white"
-            delay={35}
-            duration={0.7}
+            delay={25}
+            duration={0.6}
             ease="power3.out"
             splitType="words"
-            from={{ opacity: 0, y: 25 }}
+            from={{ opacity: 0, y: 20 }}
             to={{ opacity: 1, y: 0 }}
             textAlign="center"
             tag="h2"
           />
           <p className="text-sm text-slate-400 mt-2">
-            Every feature is designed to eliminate study paralysis, prioritize high-impact subjects, and adapt to schedule changes.
+            Follow this 4-step intelligent workflow to eliminate study paralysis, prioritize high-impact exam topics, and stay in total control when your schedule changes.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* 4 Steps Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Step 1: Subjects */}
+          <BorderGlow
+            glowColor="180 90 60"
+            backgroundColor="#081424"
+            colors={['#06b6d4', '#38bdf8', '#22d3ee']}
+            borderRadius={20}
+            glowRadius={30}
+            glowIntensity={1.2}
+            edgeSensitivity={25}
+            className="group hover:scale-[1.02] transition-transform duration-200"
+          >
+            <SpotlightCard
+              spotlightColor="rgba(6, 182, 212, 0.35)"
+              className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-md bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">
+                    STEP 01
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-cyan-400 transition-colors">
+                  Setup Subjects & Goals
+                </h3>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Add your courses, set difficulty ratings, input knowledge levels, and link upcoming exam dates.
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-cyan-900/30 flex items-center justify-between">
+                <button
+                  onClick={() => setActiveTab('subjects')}
+                  className="w-full py-2 px-3 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <span>Manage Subjects</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </SpotlightCard>
+          </BorderGlow>
+
+          {/* Step 2: AI Plan */}
           <BorderGlow
             glowColor="210 100 60"
             backgroundColor="#0A1326"
             colors={['#0070F3', '#3b82f6', '#60a5fa']}
             borderRadius={20}
-            glowRadius={32}
+            glowRadius={30}
             glowIntensity={1.2}
             edgeSensitivity={25}
-            className="group hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+            className="group hover:scale-[1.02] transition-transform duration-200"
           >
             <SpotlightCard
               spotlightColor="rgba(0, 112, 243, 0.35)"
-              onClick={() => setActiveTab('planner')}
               className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
             >
               <div>
-                <div className="w-10 h-10 rounded-lg bg-[#0070F3]/10 border border-[#0070F3]/30 flex items-center justify-center text-[#0070F3] mb-4">
-                  <CalendarRange className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#0070F3]/10 border border-[#0070F3]/30 flex items-center justify-center text-[#0070F3]">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-md bg-blue-950/80 text-blue-300 border border-blue-500/30">
+                    STEP 02
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-[#0070F3] transition-colors">AI Study Plan Generator</h3>
+                <h3 className="text-base font-bold text-white group-hover:text-[#0070F3] transition-colors">
+                  Generate AI Timetable
+                </h3>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Input subjects, difficulty levels, exam deadlines, and daily available hours. AI Engine constructs a balanced multi-day timeline.
+                  Choose your daily hours and preferred start time. AI generates a balanced, consecutive schedule.
                 </p>
               </div>
-              <div className="mt-4 flex items-center gap-1.5 text-xs text-[#0070F3] font-medium">
-                <span>Generate Plan</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+
+              <div className="mt-6 pt-4 border-t border-blue-900/30 flex items-center justify-between">
+                <button
+                  onClick={onStartPlanner}
+                  className="w-full py-2 px-3 rounded-lg bg-[#0070F3]/10 hover:bg-[#0070F3]/25 border border-[#0070F3]/30 text-blue-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Build Study Plan</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </SpotlightCard>
           </BorderGlow>
 
-          <BorderGlow
-            glowColor="180 90 60"
-            backgroundColor="#0B1622"
-            colors={['#06b6d4', '#38bdf8', '#22d3ee']}
-            borderRadius={20}
-            glowRadius={32}
-            glowIntensity={1.2}
-            edgeSensitivity={25}
-            className="group hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
-          >
-            <SpotlightCard
-              spotlightColor="rgba(6, 182, 212, 0.35)"
-              onClick={() => setActiveTab('planner')}
-              className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
-            >
-              <div>
-                <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">Adaptive "Adjust My Plan"</h3>
-                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Missed a session or running low on time? Click one button to dynamically redistribute remaining study sessions without falling behind.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-medium">
-                <span>Test Adaptation</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </SpotlightCard>
-          </BorderGlow>
-
+          {/* Step 3: Focus Timer */}
           <BorderGlow
             glowColor="270 90 65"
             backgroundColor="#140A22"
             colors={['#a855f7', '#c084fc', '#e879f9']}
             borderRadius={20}
-            glowRadius={32}
+            glowRadius={30}
             glowIntensity={1.2}
             edgeSensitivity={25}
-            className="group hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
+            className="group hover:scale-[1.02] transition-transform duration-200"
           >
             <SpotlightCard
               spotlightColor="rgba(168, 85, 247, 0.35)"
-              onClick={() => setActiveTab('timer')}
               className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
             >
               <div>
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
-                  <ShieldCheck className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-md bg-purple-950/80 text-purple-300 border border-purple-500/30">
+                    STEP 03
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">3D Focus Timer Environment</h3>
+                <h3 className="text-base font-bold text-white group-hover:text-purple-400 transition-colors">
+                  3D Focus & Soundscapes
+                </h3>
                 <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                  Pomodoro focus timer with glowing ambient visual effects, white noise ambient sounds, and automatic task progress logging.
+                  Start focus blocks with a 3D visual gyroscope, ambient soundscapes, and automatic minutes logging.
                 </p>
               </div>
-              <div className="mt-4 flex items-center gap-1.5 text-xs text-purple-400 font-medium">
-                <span>Launch Timer</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+
+              <div className="mt-6 pt-4 border-t border-purple-900/30 flex items-center justify-between">
+                <button
+                  onClick={() => setActiveTab('timer')}
+                  className="w-full py-2 px-3 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>Launch Timer</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </SpotlightCard>
           </BorderGlow>
+
+          {/* Step 4: Assistant & Adaptive Adjust */}
+          <BorderGlow
+            glowColor="150 90 55"
+            backgroundColor="#081816"
+            colors={['#10b981', '#34d399', '#6ee7b7']}
+            borderRadius={20}
+            glowRadius={30}
+            glowIntensity={1.2}
+            edgeSensitivity={25}
+            className="group hover:scale-[1.02] transition-transform duration-200"
+          >
+            <SpotlightCard
+              spotlightColor="rgba(16, 185, 129, 0.35)"
+              className="bg-transparent border-none p-6 flex flex-col justify-between h-full rounded-[inherit]"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <Bot className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                    STEP 04
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors">
+                  Alex AI & Adaptive Sync
+                </h3>
+                <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                  Ask Alex for instant explanations and formula sheets, or use one-click adaptation to redistribute sessions.
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-emerald-900/30 flex items-center justify-between">
+                <button
+                  onClick={() => setActiveTab('assistant')}
+                  className="w-full py-2 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>Ask Alex Tutor</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </SpotlightCard>
+          </BorderGlow>
+        </div>
+
+        {/* Quick Direct Views Navigator */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs">
+          <span className="text-slate-400 font-medium">Quick explore:</span>
+          <button
+            onClick={() => setActiveTab('planner')}
+            className="px-3 py-1.5 rounded-lg bg-blue-950/40 border border-blue-500/20 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-all flex items-center gap-1.5"
+          >
+            <CalendarRange className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Interactive Timetable</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className="px-3 py-1.5 rounded-lg bg-blue-950/40 border border-blue-500/20 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-all flex items-center gap-1.5"
+          >
+            <CheckSquare className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Today's Task Stream</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('progress')}
+            className="px-3 py-1.5 rounded-lg bg-blue-950/40 border border-blue-500/20 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-all flex items-center gap-1.5"
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Knowledge Analytics</span>
+          </button>
         </div>
       </section>
 
@@ -281,3 +413,4 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     </div>
   );
 };
+
