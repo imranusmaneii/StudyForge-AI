@@ -53,9 +53,9 @@ import { AuthModal } from './components/Auth/AuthModal';
 import { ToastContainer, ToastMessage } from './components/Toast';
 
 export default function App() {
-  // Default initial active tab: 'landing' (Overview) if logged out, or 'dashboard' if logged in
+  // Default initial active tab: 'landing' (Overview)
   const [currentUser, setCurrentUser] = useState<User | null>(() => loadCurrentUser());
-  const [activeTab, setActiveTabState] = useState<ActiveTab>(() => currentUser ? 'dashboard' : 'landing');
+  const [activeTab, setActiveTabState] = useState<ActiveTab>('landing');
 
   // Smart tab switcher enforcing login for all tabs except 'landing' (Overview)
   const setActiveTab = (tab: ActiveTab) => {
@@ -181,7 +181,7 @@ export default function App() {
 
   const handleLoginSuccess = async (user: User) => {
     setCurrentUser(user);
-    setActiveTabState('dashboard');
+    setActiveTabState('landing');
     setIsAuthModalOpen(false);
     addToast(`Welcome back, ${user.name}!`, 'success');
 
@@ -200,7 +200,7 @@ export default function App() {
     setSubjects(EMPTY_SUBJECTS);
     setStudyPlan(EMPTY_STUDY_PLAN);
     setProgress(EMPTY_PROGRESS);
-    setActiveTabState('dashboard');
+    setActiveTabState('landing');
     setIsAuthModalOpen(false);
     addToast(`Welcome to StudyForge AI, ${user.name}!`, 'success');
   };
@@ -539,6 +539,7 @@ export default function App() {
               onStartPlanner={handleOpenCreateModal}
               onExploreDemo={() => setActiveTab('dashboard')}
               setActiveTab={setActiveTab}
+              currentUser={currentUser}
             />
           )}
 

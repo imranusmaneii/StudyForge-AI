@@ -30,6 +30,14 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
 
+  // Edit Subject State
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDifficulty, setEditDifficulty] = useState<DifficultyLevel>('medium');
+  const [editExamDate, setEditExamDate] = useState('2026-08-15');
+  const [editKnowledge, setEditKnowledge] = useState<number>(60);
+  const [editColor, setEditColor] = useState('#3b82f6');
+
   // New Subject Form State
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState<DifficultyLevel>('medium');
@@ -39,6 +47,36 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
   const [topicInput, setTopicInput] = useState('');
 
   const colors = ['#3b82f6', '#06b6d4', '#8b5cf6', '#38bdf8', '#ec4899', '#f59e0b', '#10b981'];
+
+  const handleOpenEdit = (subj: Subject) => {
+    setEditingSubject(subj);
+    setEditName(subj.name);
+    setEditDifficulty(subj.difficulty);
+    setEditExamDate(subj.examDate);
+    setEditKnowledge(subj.knowledgeLevel);
+    setEditColor(subj.color);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSubject || !editName.trim()) return;
+
+    const updated: Subject = {
+      ...editingSubject,
+      name: editName.trim(),
+      difficulty: editDifficulty,
+      examDate: editExamDate,
+      knowledgeLevel: editKnowledge,
+      color: editColor,
+      priority: editDifficulty === 'extreme' || editDifficulty === 'hard' ? 'urgent' : 'high'
+    };
+
+    onUpdateSubject(updated);
+    if (selectedSubject?.id === updated.id) {
+      setSelectedSubject(updated);
+    }
+    setEditingSubject(null);
+  };
 
   const handleCreateSubject = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +155,25 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
 
       {/* Grid of Subject Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {subjects.map((subj) => {
+        {subjects.length === 0 ? (
+          <div className="col-span-full p-10 rounded-2xl bg-[#070d1e] border border-dashed border-blue-500/40 text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/10 text-cyan-400">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-white">No Subjects Added Yet</h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              Add your courses and upcoming exam dates to track your academic mastery and generate smart timetables.
+            </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs inline-flex items-center gap-2 transition-all shadow-md"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Your First Subject</span>
+            </button>
+          </div>
+        ) : (
+          subjects.map((subj) => {
           const daysLeft = Math.ceil((new Date(subj.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
           const diffBadge = {
             easy: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
@@ -147,15 +203,22 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
                     </div>
                   </div>
 
-                  {subjects.length > 1 && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => handleOpenEdit(subj)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-blue-900/40 border border-transparent hover:border-blue-500/30 transition-all"
+                      title={`Edit ${subj.name}`}
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => onDeleteSubject(subj.id)}
-                      className="text-slate-600 hover:text-rose-400 p-1 transition-colors"
-                      title="Delete subject"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 border border-transparent hover:border-rose-500/30 transition-all"
+                      title={`Delete ${subj.name}`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
-                  )}
+                  </div>
                 </div>
 
                 {/* Progress Bar & Stat */}
@@ -187,7 +250,7 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
               </div>
             </Card3D>
           );
-        })}
+        }))}
       </div>
 
       {/* Topics Detail Drawer / Modal */}
@@ -324,6 +387,115 @@ export const SubjectsView: React.FC<SubjectsViewProps> = ({
               >
                 Save Subject Matrix
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Subject Modal */}
+      {editingSubject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-lg bg-[#050914] border border-cyan-500/40 rounded-2xl p-6 space-y-5 shadow-[0_0_40px_rgba(6,182,212,0.25)]">
+            <div className="flex items-center justify-between border-b border-blue-900/30 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Edit2 className="w-4 h-4 text-cyan-400" />
+                <span>Edit Subject Details</span>
+              </h3>
+              <button
+                onClick={() => setEditingSubject(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Subject Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#070d1e] border border-blue-900/40 text-xs text-white focus:outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Difficulty</label>
+                  <select
+                    value={editDifficulty}
+                    onChange={(e: any) => setEditDifficulty(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-[#070d1e] border border-blue-900/40 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="extreme">Extreme</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Exam Date</label>
+                  <input
+                    type="date"
+                    value={editExamDate}
+                    onChange={(e) => setEditExamDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-[#070d1e] border border-blue-900/40 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-300">Mastery / Knowledge Level</label>
+                  <span className="text-xs font-mono font-bold text-cyan-400">{editKnowledge}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={editKnowledge}
+                  onChange={(e) => setEditKnowledge(Number(e.target.value))}
+                  className="w-full accent-cyan-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Color Theme</label>
+                <div className="flex items-center gap-2">
+                  {colors.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setEditColor(c)}
+                      className={`w-6 h-6 rounded-full border-2 transition-all ${
+                        editColor === c ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-75 hover:opacity-100'
+                      }`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-blue-900/30">
+                <button
+                  type="button"
+                  onClick={() => setEditingSubject(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!editName.trim()}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Save Changes</span>
+                </button>
+              </div>
             </form>
           </div>
         </div>

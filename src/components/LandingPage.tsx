@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActiveTab } from '../types';
+import { ActiveTab, User } from '../types';
 import { Hero3DCanvas } from './3d/Hero3DCanvas';
 import { Card3D } from './3d/Card3D';
 import SpotlightCard from './SpotlightCard';
@@ -27,12 +27,14 @@ interface LandingPageProps {
   onStartPlanner: () => void;
   onExploreDemo: () => void;
   setActiveTab: (tab: ActiveTab) => void;
+  currentUser?: User | null;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   onStartPlanner,
   onExploreDemo,
-  setActiveTab
+  setActiveTab,
+  currentUser
 }) => {
   return (
     <div className="relative min-h-screen bg-[#030507] text-slate-100 overflow-hidden">
@@ -105,7 +107,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-slate-200 font-medium text-sm hover:bg-blue-900/40 hover:text-cyan-300 transition-all"
             >
               <Play className="w-4 h-4 text-cyan-400 fill-cyan-400" />
-              <span>Explore Demo Dashboard</span>
+              <span>{currentUser ? 'Go to Dashboard' : 'Explore Demo Dashboard'}</span>
             </button>
           </div>
 
