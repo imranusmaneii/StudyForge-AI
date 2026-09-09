@@ -104,7 +104,7 @@ export async function signInWithGoogle(): Promise<User> {
     if (error.code === 'auth/popup-blocked' || error.message?.includes('popup') || (inIframe && error.code === 'auth/internal-error')) {
       throw new Error(
         inIframe
-          ? 'Google sign-in popup was blocked by browser iframe security restrictions. Please click "Open App in New Tab" or use Instant Demo / Email sign-in.'
+          ? 'Google sign-in popup was blocked by browser iframe security restrictions. Please click "Open App in New Tab" or use Email sign-in.'
           : 'Sign-in popup was blocked by your browser. Please allow popups for this site and try again.'
       );
     } else if (error.code === 'auth/popup-closed-by-user') {
@@ -112,7 +112,7 @@ export async function signInWithGoogle(): Promise<User> {
     } else if (error.code === 'auth/cancelled-popup-request') {
       throw new Error('Sign-in request was cancelled by a newer request.');
     } else if (error.code === 'auth/unauthorized-domain') {
-      throw new Error(`Domain (${typeof window !== 'undefined' ? window.location.hostname : ''}) is not authorized in Firebase Auth. Please add it in Firebase Console or use Email / Demo sign-in.`);
+      throw new Error(`Domain (${typeof window !== 'undefined' ? window.location.hostname : ''}) is not authorized in Firebase Auth. Please add it in Firebase Console or use Email sign-in.`);
     }
     throw new Error(error.message || 'Failed to sign in with Google.');
   }

@@ -87,24 +87,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleDemoLogin = () => {
-    setIsLoading(true);
-    const demoUser: User = {
-      id: 'demo-student-101',
-      name: 'Alex Rivers',
-      email: 'alex.rivers@university.edu',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      provider: 'email',
-      createdAt: new Date().toISOString()
-    };
-    setTimeout(() => {
-      onLogin(demoUser, false);
-      setIsLoading(false);
-      onClose();
-    }, 400);
-  };
-
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
       <GlareHover
@@ -149,17 +131,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 : 'Join StudyForge AI to build your personalized study schedule.'}
             </p>
           </div>
-
-          {/* Quick Demo Login Button */}
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold text-xs transition-all shadow-[0_0_20px_rgba(0,112,243,0.3)] mb-2.5"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-200" />
-            <span>Instant Demo Student Sign-In</span>
-          </button>
 
           {/* Google OAuth Button */}
           <button
